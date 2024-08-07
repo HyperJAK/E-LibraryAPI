@@ -1,0 +1,6 @@
+@ELib_IDSFintech_Internship_HostAddress = http://localhost:5227
+
+GET {{ELib_IDSFintech_Internship_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
