@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using ELib_IDSFintech_Internship.Models.Books.Enums;
+using ELib_IDSFintech_Internship.Models.Enums;
 
 namespace ELib_IDSFintech_Internship.Models.Books
 {
@@ -44,7 +45,7 @@ namespace ELib_IDSFintech_Internship.Models.Books
         //For digital books only
         public BookFormatType? Format { get; set; }
 
-        public required Languages Language { get; set; }
+        public required LanguageType Language { get; set; }
 
         public ICollection<BookGenre>? Genres { get; set; }
 

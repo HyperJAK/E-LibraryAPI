@@ -1,6 +1,6 @@
-﻿namespace ELib_IDSFintech_Internship.Models
+﻿namespace ELib_IDSFintech_Internship.Models.Enums
 {
-    public enum Languages
+    public enum LanguageType
     {
         English,          // EN
         Spanish,          // ES

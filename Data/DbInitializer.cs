@@ -1,8 +1,8 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books.Enums;
 using ELib_IDSFintech_Internship.Models.Books;
-using ELib_IDSFintech_Internship.Models;
 using ELib_IDSFintech_Internship.Models.Users;
 using ELib_IDSFintech_Internship.Models.Users.Enums;
+using ELib_IDSFintech_Internship.Models.Enums;
 
 namespace ELib_IDSFintech_Internship.Data
 {
@@ -90,7 +90,7 @@ namespace ELib_IDSFintech_Internship.Data
                 PhysicalBookLocation = location1,
                 Publisher = "Secker & Warburg",
                 PageCount = 328,
-                Language = Languages.English,
+                Language = LanguageType.English,
                 Author = author1,
                 Genres = new List<BookGenre> { genre2 },
                 TimeStamp = DateTime.Now,
@@ -109,7 +109,7 @@ namespace ELib_IDSFintech_Internship.Data
                 Publisher = "Bloomsbury",
                 PageCount = 223,
                 FileSizeInMB = 5,
-                Language = Languages.English,
+                Language = LanguageType.English,
                 Author = author2,
                 Genres = new List<BookGenre> { genre1 },
                 TimeStamp = DateTime.Now,
