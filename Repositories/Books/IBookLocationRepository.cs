@@ -1,6 +1,6 @@
 ﻿namespace ELib_IDSFintech_Internship.Repositories.Books
 {
-    public interface IBookLocationRepository
+    public interface IBookLocationRepository : IDefaultRepository
     {
     }
 }
