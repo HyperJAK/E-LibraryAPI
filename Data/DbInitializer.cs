@@ -2,6 +2,7 @@
 using ELib_IDSFintech_Internship.Models.Books;
 using ELib_IDSFintech_Internship.Models;
 using ELib_IDSFintech_Internship.Models.Users;
+using ELib_IDSFintech_Internship.Models.Users.Enums;
 
 namespace ELib_IDSFintech_Internship.Data
 {
