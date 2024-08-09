@@ -2,7 +2,7 @@
 
 namespace ELib_IDSFintech_Internship.Repositories.Books
 {
-    public interface IBookAuthorRepository : IDefaultRepository
+    public interface IBookAuthorRepository : IDefaultRepository<BookAuthor>
     {
 
     }

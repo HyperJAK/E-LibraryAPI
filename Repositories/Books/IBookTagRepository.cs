@@ -1,6 +1,8 @@
-﻿namespace ELib_IDSFintech_Internship.Repositories.Books
+﻿using ELib_IDSFintech_Internship.Models.Books;
+
+namespace ELib_IDSFintech_Internship.Repositories.Books
 {
-    public interface IBookTagRepository : IDefaultRepository
+    public interface IBookTagRepository : IDefaultRepository<BookTag>
     {
     }
 }

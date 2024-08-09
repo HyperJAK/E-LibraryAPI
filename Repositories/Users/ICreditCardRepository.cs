@@ -1,6 +1,8 @@
-﻿namespace ELib_IDSFintech_Internship.Repositories.Users
+﻿using ELib_IDSFintech_Internship.Models.Users;
+
+namespace ELib_IDSFintech_Internship.Repositories.Users
 {
-    public interface ICreditCardRepository : IDefaultRepository
+    public interface ICreditCardRepository : IDefaultRepository<CreditCard>
     {
     }
 }
