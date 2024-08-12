@@ -21,7 +21,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
             _logger = logger;
         }
 
-        public Task<int?> Create(CreditCard entity)
+        public Task<int?> Create(CreditCard newObject)
         {
             throw new NotImplementedException();
         }
@@ -41,7 +41,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
             throw new NotImplementedException();
         }
 
-        public Task<int?> Update(CreditCard newEntity)
+        public Task<int?> Update(CreditCard modifiedObject)
         {
             throw new NotImplementedException();
         }

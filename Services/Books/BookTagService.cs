@@ -19,7 +19,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
             _logger = logger;
         }
 
-        public Task<int?> Create(BookTag entity)
+        public Task<int?> Create(BookTag newObject)
         {
             throw new NotImplementedException();
         }
@@ -39,7 +39,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
             throw new NotImplementedException();
         }
 
-        public Task<int?> Update(BookTag newEntity)
+        public Task<int?> Update(BookTag modifiedObject)
         {
             throw new NotImplementedException();
         }

@@ -20,7 +20,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
             _logger = logger;
         }
 
-        public Task<int?> Create(Book entity)
+        public Task<int?> Create(Book newObject)
         {
             throw new NotImplementedException();
         }
@@ -40,7 +40,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
             throw new NotImplementedException();
         }
 
-        public Task<int?> Update(Book newEntity)
+        public Task<int?> Update(Book modifiedObject)
         {
             throw new NotImplementedException();
         }

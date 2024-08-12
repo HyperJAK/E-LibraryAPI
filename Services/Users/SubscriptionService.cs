@@ -20,7 +20,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
             _logger = logger;
         }
 
-        public Task<int?> Create(Subscription entity)
+        public Task<int?> Create(Subscription newObject)
         {
             throw new NotImplementedException();
         }
@@ -40,7 +40,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
             throw new NotImplementedException();
         }
 
-        public Task<int?> Update(Subscription newEntity)
+        public Task<int?> Update(Subscription modifiedObject)
         {
             throw new NotImplementedException();
         }

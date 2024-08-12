@@ -8,9 +8,9 @@ namespace ELib_IDSFintech_Internship.Repositories
 
         public Task<T?> GetById(int ID);
 
-        public Task<int?> Create(T entity);
+        public Task<int?> Create(T newObject);
 
-        public Task<int?> Update(T newEntity);
+        public Task<int?> Update(T modifiedObject);
 
         public Task<int?> Delete(int ID);
     }
