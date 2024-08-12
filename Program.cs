@@ -1,5 +1,7 @@
 
 using ELib_IDSFintech_Internship.Data;
+using ELib_IDSFintech_Internship.Services.Books;
+using ELib_IDSFintech_Internship.Services.Users;
 using Microsoft.EntityFrameworkCore;
 
 namespace ELib_IDSFintech_Internship
@@ -28,8 +30,15 @@ namespace ELib_IDSFintech_Internship
             builder.Logging.AddConsole();
             builder.Logging.AddDebug();
 
-            /*builder.Services.AddScoped<StudentService>();
-            builder.Services.AddScoped<LocationService>();*/
+            //building services
+            builder.Services.AddScoped<BookAuthorService>();
+            builder.Services.AddScoped<BookGenreService>();
+            builder.Services.AddScoped<BookLocationService>();
+            builder.Services.AddScoped<BookService>();
+            builder.Services.AddScoped<BookTagService>();
+            builder.Services.AddScoped<CreditCardService>();
+            builder.Services.AddScoped<SubscriptionService>();
+            builder.Services.AddScoped<UserService>();
 
             var app = builder.Build();
 
