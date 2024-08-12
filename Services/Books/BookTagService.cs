@@ -5,6 +5,20 @@ namespace ELib_IDSFintech_Internship.Services.Books
 {
     public class BookTagService : IBookTagRepository
     {
+        private readonly Data.ELibContext _context;
+        private readonly ILogger<BookTagService> _logger;
+
+        //conveniently used when was copy pasting from another controller to this, and left behind.
+        private readonly string _logName = "BookTag";
+
+
+
+        public BookTagService(Data.ELibContext context, ILogger<BookTagService> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
+
         public Task<int?> Create(BookTag entity)
         {
             throw new NotImplementedException();

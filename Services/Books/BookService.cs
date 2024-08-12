@@ -5,6 +5,21 @@ namespace ELib_IDSFintech_Internship.Services.Books
 {
     public class BookService : IBookRepository
     {
+
+        private readonly Data.ELibContext _context;
+        private readonly ILogger<BookService> _logger;
+
+        //conveniently used when was copy pasting from another controller to this, and left behind.
+        private readonly string _logName = "Book";
+
+
+
+        public BookService(Data.ELibContext context, ILogger<BookService> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
+
         public Task<int?> Create(Book entity)
         {
             throw new NotImplementedException();

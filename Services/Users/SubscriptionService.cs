@@ -5,6 +5,21 @@ namespace ELib_IDSFintech_Internship.Services.Users
 {
     public class SubscriptionService : ISubscriptionRepository
     {
+
+        private readonly Data.ELibContext _context;
+        private readonly ILogger<SubscriptionService> _logger;
+
+        //conveniently used when was copy pasting from another controller to this, and left behind.
+        private readonly string _logName = "Subscription";
+
+
+
+        public SubscriptionService(Data.ELibContext context, ILogger<SubscriptionService> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
+
         public Task<int?> Create(Subscription entity)
         {
             throw new NotImplementedException();
