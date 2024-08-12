@@ -1,6 +1,8 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books.Enums;
 using ELib_IDSFintech_Internship.Models.Books;
-using ELib_IDSFintech_Internship.Models;
+using ELib_IDSFintech_Internship.Models.Users;
+using ELib_IDSFintech_Internship.Models.Users.Enums;
+using ELib_IDSFintech_Internship.Models.Enums;
 
 namespace ELib_IDSFintech_Internship.Data
 {
@@ -13,7 +15,10 @@ namespace ELib_IDSFintech_Internship.Data
                 && context.Authors.Any()
                 && context.Genres.Any()
                 && context.BookLocations.Any()
-                && context.Tags.Any())
+                && context.Tags.Any()
+                && context.Users.Any()
+                && context.CreditCards.Any()
+                && context.Subscriptions.Any())
             {
                 return;   // DB has been seeded
             }
@@ -85,7 +90,7 @@ namespace ELib_IDSFintech_Internship.Data
                 PhysicalBookLocation = location1,
                 Publisher = "Secker & Warburg",
                 PageCount = 328,
-                Language = Languages.English,
+                Language = LanguageType.English,
                 Author = author1,
                 Genres = new List<BookGenre> { genre2 },
                 TimeStamp = DateTime.Now,
@@ -104,9 +109,72 @@ namespace ELib_IDSFintech_Internship.Data
                 Publisher = "Bloomsbury",
                 PageCount = 223,
                 FileSizeInMB = 5,
-                Language = Languages.English,
+                Language = LanguageType.English,
                 Author = author2,
                 Genres = new List<BookGenre> { genre1 },
+                TimeStamp = DateTime.Now,
+            };
+
+
+            //creating stuff related to user
+            // Create some subscriptions
+            var subscription1 = new Subscription
+            {
+                Type = SubscriptionType.Basic,
+                Price = 9.99,
+                DurationInDays = new DateOnly(2023, 8, 9).AddDays(30)
+            };
+
+            var subscription2 = new Subscription
+            {
+                Type = SubscriptionType.Premium,
+                Price = 19.99,
+                DurationInDays = new DateOnly(2023, 8, 9).AddDays(90)
+            };
+
+            // Create some credit cards
+            var creditCard1 = new CreditCard
+            {
+                FullName = "John Doe",
+                CardNumber = "1234-5678-9012-3456",
+                BillingAddress = "1234 Elm Street, Springfield, USA",
+                ExpirationDate = new DateOnly(2025, 12, 31),
+                TimeStamp = DateTime.Now,
+            };
+
+            var creditCard2 = new CreditCard
+            {
+                FullName = "Jane Smith",
+                CardNumber = "9876-5432-1098-7654",
+                BillingAddress = "5678 Oak Avenue, Metropolis, USA",
+                ExpirationDate = new DateOnly(2024, 6, 30),
+                TimeStamp = DateTime.Now,
+            };
+
+            // Create some users
+            var user1 = new User
+            {
+                Username = "johndoe",
+                Email = "johndoe@example.com",
+                Password = "hashedpassword123", // Replace with actual hashed password
+                PhoneNumber = "555-1234",
+                CreditCard = creditCard1,
+                Subscription = subscription1,
+                SubscriptionStartDate = new DateOnly(2023, 8, 9),
+                SubscriptionEndDate = new DateOnly(2023, 9, 8),
+                TimeStamp = DateTime.Now,
+            };
+
+            var user2 = new User
+            {
+                Username = "janesmith",
+                Email = "janesmith@example.com",
+                Password = "hashedpassword456", // Replace with actual hashed password
+                PhoneNumber = "555-5678",
+                CreditCard = creditCard2,
+                Subscription = subscription2,
+                SubscriptionStartDate = new DateOnly(2023, 8, 9),
+                SubscriptionEndDate = new DateOnly(2023, 11, 7),
                 TimeStamp = DateTime.Now,
             };
 
@@ -116,6 +184,12 @@ namespace ELib_IDSFintech_Internship.Data
             context.BookLocations.AddRange(location1, location2);
             context.Tags.AddRange(tag1, tag2);
             context.Books.AddRange(book1, book2);
+
+
+            // Add entities to context
+            context.CreditCards.AddRange(creditCard1, creditCard2);
+            context.Subscriptions.AddRange(subscription1, subscription2);
+            context.Users.AddRange(user1, user2);
 
             // Save changes to database
             context.SaveChanges();
