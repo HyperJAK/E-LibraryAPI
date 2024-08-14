@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
+using ELib_IDSFintech_Internship.Models.Books;
 
 namespace ELib_IDSFintech_Internship.Models.Users
 {
@@ -24,6 +25,8 @@ namespace ELib_IDSFintech_Internship.Models.Users
         public CreditCard? CreditCard { get; set; }
 
         public Subscription? Subscription { get; set; }
+
+        public ICollection<Book>? Books { get; set; }
 
         public DateOnly? SubscriptionStartDate { get; set; }
 

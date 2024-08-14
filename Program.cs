@@ -30,6 +30,9 @@ namespace ELib_IDSFintech_Internship
             builder.Logging.AddConsole();
             builder.Logging.AddDebug();
 
+            //registering the MemoryCaching to the services DI container
+            builder.Services.AddMemoryCache();
+
             //building services
             builder.Services.AddScoped<BookAuthorService>();
             builder.Services.AddScoped<BookGenreService>();

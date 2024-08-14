@@ -49,6 +49,8 @@ namespace ELib_IDSFintech_Internship.Models.Books
 
         public ICollection<BookGenre>? Genres { get; set; }
 
+        public ICollection<BookTag>? Tags { get; set; }
+
         public required BookAuthor Author { get; set; }
 
         public required DateTime TimeStamp { get; set; }
