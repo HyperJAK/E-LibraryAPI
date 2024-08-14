@@ -148,5 +148,23 @@ namespace ELib_IDSFintech_Internship.Services.Books
                 throw ex;
             }
         }
+
+        public Task<bool?> ClearCache()
+        {
+            _logger.LogInformation($"Clearing all cached {_logName}s, Service Layer");
+            try
+            {
+                _memoryCache.Remove(cacheKey);
+
+                _logger.LogInformation($"Cleared all cached {_logName}s");
+
+                return Task.FromResult<bool?>(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to clear the cached {_logName}s, in Service Layer");
+                throw ex;
+            }
+        }
     }
 }
