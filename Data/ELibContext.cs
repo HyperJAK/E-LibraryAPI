@@ -1,5 +1,5 @@
-﻿using ELib_IDSFintech_Internship.Models;
-using ELib_IDSFintech_Internship.Models.Books;
+﻿using ELib_IDSFintech_Internship.Models.Books;
+using ELib_IDSFintech_Internship.Models.Common;
 using ELib_IDSFintech_Internship.Models.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,7 +32,7 @@ namespace ELib_IDSFintech_Internship.Data
         //not needed until now in testing
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            
+
         }
 
         public DbSet<User> Users => Set<User>();
@@ -43,9 +43,12 @@ namespace ELib_IDSFintech_Internship.Data
 
         public DbSet<BookGenre> Genres => Set<BookGenre>();
         public DbSet<BookTag> Tags => Set<BookTag>();
+        public DbSet<BookFormat> BookFormats => Set<BookFormat>();
 
         public DbSet<BookAuthor> Authors => Set<BookAuthor>();
         public DbSet<BookLocation> BookLocations => Set<BookLocation>();
+
+        public DbSet<Language> Languages => Set<Language>();
 
     }
 }

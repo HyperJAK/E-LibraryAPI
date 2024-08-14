@@ -155,7 +155,7 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
 
             try
             {
-                var cleared =  await _service.ClearCache();
+                var cleared = await _service.ClearCache();
 
                 if (!cleared.Value)
                 {
@@ -167,7 +167,7 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
                     return Ok();
                 }
 
-                
+
             }
             catch (Exception ex)
             {

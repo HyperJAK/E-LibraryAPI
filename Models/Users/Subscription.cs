@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using ELib_IDSFintech_Internship.Models.Users.Enums;
 
 namespace ELib_IDSFintech_Internship.Models.Users
 {
@@ -8,7 +7,7 @@ namespace ELib_IDSFintech_Internship.Models.Users
         [Key]
         public int Id { get; set; }
 
-        public SubscriptionType Type { get; set; }
+        public string Type { get; set; }
 
         public double Price { get; set; }
 

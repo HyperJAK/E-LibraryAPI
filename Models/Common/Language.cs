@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ELib_IDSFintech_Internship.Models.Books
+namespace ELib_IDSFintech_Internship.Models.Common
 {
-    public class BookGenre
+    public class Language
     {
         [Key]
         public int Id { get; set; }

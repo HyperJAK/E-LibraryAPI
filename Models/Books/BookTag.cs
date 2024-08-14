@@ -1,5 +1,4 @@
-﻿using ELib_IDSFintech_Internship.Models.Books.Enums;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace ELib_IDSFintech_Internship.Models.Books
 {
@@ -8,6 +7,6 @@ namespace ELib_IDSFintech_Internship.Models.Books
         [Key]
         public int Id { get; set; }
 
-        public required BookTagType Type { get; set; }
+        public required string Type { get; set; }
     }
 }

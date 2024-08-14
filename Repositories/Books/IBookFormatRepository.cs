@@ -2,7 +2,7 @@
 
 namespace ELib_IDSFintech_Internship.Repositories.Books
 {
-    public interface IBookGenreRepository : IDefaultRepository<BookGenre>
+    public interface IBookFormatRepository : IDefaultRepository<BookFormat>
     {
         //This clears the cached data in memory
         public Task<bool?> ClearCache();

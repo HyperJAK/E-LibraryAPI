@@ -1,22 +1,21 @@
-﻿using ELib_IDSFintech_Internship.Models.Users;
-using ELib_IDSFintech_Internship.Services.Users;
+﻿using ELib_IDSFintech_Internship.Models.Common;
+using ELib_IDSFintech_Internship.Services.Common;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ELib_IDSFintech_Internship.Controllers.Users
+namespace ELib_IDSFintech_Internship.Controllers.Common
 {
     [ApiController]
     [Route("[controller]")]
-    public class CreditCardController : ControllerBase
+    public class LanguageController : ControllerBase
     {
-
-        private readonly CreditCardService _service;
-        private readonly ILogger<CreditCardController> _logger;
+        private readonly LanguageService _service;
+        private readonly ILogger<LanguageController> _logger;
 
         //conveniently used when was copy pasting from another controller to this, and left behind.
-        private readonly string _logName = "CreditCard";
+        private readonly string _logName = "Language";
 
 
-        public CreditCardController(ILogger<CreditCardController> logger, CreditCardService service)
+        public LanguageController(ILogger<LanguageController> logger, LanguageService service)
         {
             _logger = logger;
             _service = service;
@@ -48,7 +47,7 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
         }
 
         [HttpPost("api/create")]
-        public async Task<IActionResult> Create(CreditCard newObject)
+        public async Task<IActionResult> Create(Language newObject)
         {
             _logger.LogInformation($"Creating a {_logName}, Controller Layer");
 
@@ -99,7 +98,7 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
 
 
         [HttpPut("api/update")]
-        public async Task<IActionResult> Update(CreditCard modifiedObject)
+        public async Task<IActionResult> Update(Language modifiedObject)
         {
             _logger.LogInformation($"Updating a {_logName}, Controller Layer");
 

@@ -1,22 +1,21 @@
-﻿using ELib_IDSFintech_Internship.Models.Users;
-using ELib_IDSFintech_Internship.Services.Users;
+﻿using ELib_IDSFintech_Internship.Models.Books;
+using ELib_IDSFintech_Internship.Services.Books;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ELib_IDSFintech_Internship.Controllers.Users
+namespace ELib_IDSFintech_Internship.Controllers.Books
 {
     [ApiController]
     [Route("[controller]")]
-    public class CreditCardController : ControllerBase
+    public class BookFormatController : ControllerBase
     {
-
-        private readonly CreditCardService _service;
-        private readonly ILogger<CreditCardController> _logger;
+        private readonly BookFormatService _service;
+        private readonly ILogger<BookFormatController> _logger;
 
         //conveniently used when was copy pasting from another controller to this, and left behind.
-        private readonly string _logName = "CreditCard";
+        private readonly string _logName = "BookFormat";
 
 
-        public CreditCardController(ILogger<CreditCardController> logger, CreditCardService service)
+        public BookFormatController(ILogger<BookFormatController> logger, BookFormatService service)
         {
             _logger = logger;
             _service = service;
@@ -48,7 +47,7 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
         }
 
         [HttpPost("api/create")]
-        public async Task<IActionResult> Create(CreditCard newObject)
+        public async Task<IActionResult> Create(BookFormat newObject)
         {
             _logger.LogInformation($"Creating a {_logName}, Controller Layer");
 
@@ -99,7 +98,7 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
 
 
         [HttpPut("api/update")]
-        public async Task<IActionResult> Update(CreditCard modifiedObject)
+        public async Task<IActionResult> Update(BookFormat modifiedObject)
         {
             _logger.LogInformation($"Updating a {_logName}, Controller Layer");
 

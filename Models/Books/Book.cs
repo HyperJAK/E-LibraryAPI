@@ -1,6 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using ELib_IDSFintech_Internship.Models.Books.Enums;
-using ELib_IDSFintech_Internship.Models.Enums;
+﻿using ELib_IDSFintech_Internship.Models.Common;
+using System.ComponentModel.DataAnnotations;
 
 namespace ELib_IDSFintech_Internship.Models.Books
 {
@@ -20,7 +19,7 @@ namespace ELib_IDSFintech_Internship.Models.Books
         [MaxLength(500)]
         public required string Description { get; set; }
 
-        public required BookType Type { get; set; }
+        public required string Type { get; set; }
 
         public required bool PhysicalBookAvailability { get; set; } = true;
 
@@ -43,9 +42,9 @@ namespace ELib_IDSFintech_Internship.Models.Books
         public int? FileSizeInMB { get; set; }
 
         //For digital books only
-        public BookFormatType? Format { get; set; }
+        public ICollection<BookFormat>? Format { get; set; }
 
-        public required LanguageType Language { get; set; }
+        public required ICollection<Language> Languages { get; set; }
 
         public ICollection<BookGenre>? Genres { get; set; }
 

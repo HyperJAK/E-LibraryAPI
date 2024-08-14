@@ -1,6 +1,4 @@
-﻿using ELib_IDSFintech_Internship.Models.Books;
-
-namespace ELib_IDSFintech_Internship.Repositories
+﻿namespace ELib_IDSFintech_Internship.Repositories
 {
     public interface IDefaultRepository<T>
     {

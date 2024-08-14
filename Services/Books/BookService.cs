@@ -14,8 +14,8 @@ namespace ELib_IDSFintech_Internship.Services.Books
 
         //conveniently used when was copy pasting from another controller to this, and left behind.
         private readonly string _logName = "Book";
-        private readonly string cacheKey = "booksCaching";
 
+        private readonly string cacheKey = "booksCaching";
         private IEnumerable<Book>? cachedBooks;
 
 
@@ -75,7 +75,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
             try
             {
 
-                if(_memoryCache.TryGetValue(cacheKey, out cachedBooks))
+                if (_memoryCache.TryGetValue(cacheKey, out cachedBooks))
                 {
                     _logger.LogInformation($"{_logName}s retrieved from cache");
                 }
@@ -93,7 +93,6 @@ namespace ELib_IDSFintech_Internship.Services.Books
 
                     _memoryCache.Set(cacheKey, cachedBooks, cacheEntryOptions);
                 }
-
 
                 return cachedBooks;
             }
@@ -125,7 +124,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
                     return await _context.Books.Where(l => l.Id == id).FirstOrDefaultAsync();
 
                 }
-                
+
             }
             catch (Exception ex)
             {
