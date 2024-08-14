@@ -8,7 +8,7 @@ namespace ELib_IDSFintech_Internship.Models.Users
         [Key]
         public int Id { get; set; }
 
-        public SubscriptionType Type { get; set; }
+        public string Type { get; set; }
 
         public double Price { get; set; }
 

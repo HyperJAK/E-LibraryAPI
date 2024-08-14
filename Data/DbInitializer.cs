@@ -107,6 +107,34 @@ namespace ELib_IDSFintech_Internship.Data
                 new BookGenre { Type = "Essays" }
             };
 
+            var subscriptions = new List<Subscription>
+            {
+                new Subscription
+                {
+                    Type = SubscriptionType.None.ToString(),
+                    Price = 0.00,
+                    DurationInDays = new DateOnly(2023, 12, 31)
+                },
+                new Subscription
+                {
+                    Type = SubscriptionType.Basic.ToString(),
+                    Price = 9.99,
+                    DurationInDays = new DateOnly(2024, 12, 31)
+                },
+                new Subscription
+                {
+                    Type = SubscriptionType.Advanced.ToString(),
+                    Price = 14.99,
+                    DurationInDays = new DateOnly(2024, 12, 31)
+                },
+                new Subscription
+                {
+                    Type = SubscriptionType.Premium.ToString(),
+                    Price = 19.99,
+                    DurationInDays = new DateOnly(2024, 12, 31)
+                }
+            };
+
 
             // Create some book locations
             var location1 = new BookLocation
@@ -284,20 +312,7 @@ namespace ELib_IDSFintech_Internship.Data
                 TimeStamp = DateTime.Now,
             };
 
-            // Create some subscriptions
-            var subscription1 = new Subscription
-            {
-                Type = SubscriptionType.Basic,
-                Price = 9.99,
-                DurationInDays = new DateOnly(2023, 8, 9).AddDays(30)
-            };
-
-            var subscription2 = new Subscription
-            {
-                Type = SubscriptionType.Premium,
-                Price = 19.99,
-                DurationInDays = new DateOnly(2023, 8, 9).AddDays(90)
-            };
+            
 
             // Create some credit cards
             var creditCard1 = new CreditCard
@@ -326,7 +341,7 @@ namespace ELib_IDSFintech_Internship.Data
                 Password = "hashedpassword123", // Replace with actual hashed password
                 PhoneNumber = "555-1234",
                 CreditCard = creditCard1,
-                Subscription = subscription1,
+                Subscription = subscriptions[0],
                 SubscriptionStartDate = new DateOnly(2023, 8, 9),
                 SubscriptionEndDate = new DateOnly(2023, 9, 8),
                 Books = new List<Book> { book1 },
@@ -340,7 +355,7 @@ namespace ELib_IDSFintech_Internship.Data
                 Password = "hashedpassword456", // Replace with actual hashed password
                 PhoneNumber = "555-5678",
                 CreditCard = creditCard2,
-                Subscription = subscription2,
+                Subscription = subscriptions[1],
                 SubscriptionStartDate = new DateOnly(2023, 8, 9),
                 SubscriptionEndDate = new DateOnly(2023, 11, 7),
                 Books = new List<Book> { book2 },
@@ -355,7 +370,7 @@ namespace ELib_IDSFintech_Internship.Data
             context.BookFormats.AddRange(bookFormats);
             context.Books.AddRange(book1, book2);
             context.CreditCards.AddRange(creditCard1, creditCard2);
-            context.Subscriptions.AddRange(subscription1, subscription2);
+            context.Subscriptions.AddRange(subscriptions);
             context.Users.AddRange(user1, user2);
             context.Languages.AddRange(languages);
 
