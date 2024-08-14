@@ -3,6 +3,7 @@ using ELib_IDSFintech_Internship.Models.Books;
 using ELib_IDSFintech_Internship.Models.Users;
 using ELib_IDSFintech_Internship.Models.Users.Enums;
 using ELib_IDSFintech_Internship.Models.Enums;
+using ELib_IDSFintech_Internship.Models.Common;
 
 namespace ELib_IDSFintech_Internship.Data
 {
@@ -18,7 +19,8 @@ namespace ELib_IDSFintech_Internship.Data
                 && context.Tags.Any()
                 && context.Users.Any()
                 && context.CreditCards.Any()
-                && context.Subscriptions.Any())
+                && context.Subscriptions.Any()
+                && context.BookFormats.Any())
             {
                 return;   // DB has been seeded
             }
@@ -208,6 +210,38 @@ namespace ELib_IDSFintech_Internship.Data
                 new BookFormat { Type = "KFX" }
             };
 
+            var languages = new List<Language>
+            {
+                new Language { Type = "English" },
+                new Language { Type = "Spanish" },
+                new Language { Type = "French" },
+                new Language { Type = "German" },
+                new Language { Type = "Italian" },
+                new Language { Type = "Portuguese" },
+                new Language { Type = "Dutch" },
+                new Language { Type = "Russian" },
+                new Language { Type = "Chinese" },
+                new Language { Type = "Japanese" },
+                new Language { Type = "Korean" },
+                new Language { Type = "Arabic" },
+                new Language { Type = "Turkish" },
+                new Language { Type = "Hindi" },
+                new Language { Type = "Bengali" },
+                new Language { Type = "Urdu" },
+                new Language { Type = "Vietnamese" },
+                new Language { Type = "Thai" },
+                new Language { Type = "Greek" },
+                new Language { Type = "Hebrew" },
+                new Language { Type = "Swedish" },
+                new Language { Type = "Danish" },
+                new Language { Type = "Norwegian" },
+                new Language { Type = "Finnish" },
+                new Language { Type = "Polish" }, 
+                new Language { Type = "Czech" },
+                new Language { Type = "Hungarian" },
+                new Language { Type = "Lebanese" }
+            };
+
 
 
             // Create some books
@@ -223,7 +257,7 @@ namespace ELib_IDSFintech_Internship.Data
                 PhysicalBookLocation = location1,
                 Publisher = "Secker & Warburg",
                 PageCount = 328,
-                Language = "English",
+                Languages = new List<Language> { languages[0] },
                 Author = author1,
                 Genres = new List<BookGenre> { genres[0], genres[5] },
                 Tags = new List<BookTag> { tags[0], tags[2] },
@@ -243,7 +277,7 @@ namespace ELib_IDSFintech_Internship.Data
                 Publisher = "Bloomsbury",
                 PageCount = 223,
                 FileSizeInMB = 5,
-                Language = "English",
+                Languages = new List<Language> { languages[0] },
                 Author = author2,
                 Genres = new List<BookGenre> { genres[3] },
                 Tags = new List<BookTag> { tags[6] },
@@ -323,6 +357,7 @@ namespace ELib_IDSFintech_Internship.Data
             context.CreditCards.AddRange(creditCard1, creditCard2);
             context.Subscriptions.AddRange(subscription1, subscription2);
             context.Users.AddRange(user1, user2);
+            context.Languages.AddRange(languages);
 
             // Save changes to database
             context.SaveChanges();
