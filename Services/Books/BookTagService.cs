@@ -1,6 +1,8 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
+using ELib_IDSFintech_Internship.Models.Common;
 using ELib_IDSFintech_Internship.Repositories.Books;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace ELib_IDSFintech_Internship.Services.Books
 {
@@ -8,16 +10,21 @@ namespace ELib_IDSFintech_Internship.Services.Books
     {
         private readonly Data.ELibContext _context;
         private readonly ILogger<BookTagService> _logger;
+        private readonly IMemoryCache _memoryCache;
 
         //conveniently used when was copy pasting from another controller to this, and left behind.
         private readonly string _logName = "BookTag";
 
+        private readonly string cacheKey = "tagsCaching";
+        private IEnumerable<BookTag>? cachedTags;
 
 
-        public BookTagService(Data.ELibContext context, ILogger<BookTagService> logger)
+
+        public BookTagService(Data.ELibContext context, ILogger<BookTagService> logger, IMemoryCache memoryCache)
         {
             _context = context;
             _logger = logger;
+            _memoryCache = memoryCache;
         }
 
         public async Task<int?> Create(BookTag newObject)
@@ -66,7 +73,27 @@ namespace ELib_IDSFintech_Internship.Services.Books
             _logger.LogInformation($"Getting all {_logName}s information, Service Layer");
             try
             {
-                return await _context.Tags.ToListAsync();
+
+                if (_memoryCache.TryGetValue(cacheKey, out cachedTags))
+                {
+                    _logger.LogInformation($"{_logName}s retrieved from cache");
+                }
+                else
+                {
+                    _logger.LogInformation($"{_logName}s not found in cache");
+
+                    cachedTags = await _context.Tags.ToListAsync();
+
+                    //Setting behavior of the cached items after a certain passed time
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromSeconds(45))
+                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
+                        .SetPriority(CacheItemPriority.Normal);
+
+                    _memoryCache.Set(cacheKey, cachedTags, cacheEntryOptions);
+                }
+
+                return cachedTags;
             }
             catch (Exception ex)
             {
@@ -80,7 +107,23 @@ namespace ELib_IDSFintech_Internship.Services.Books
             _logger.LogInformation($"Getting a single {_logName} using his ID: {id}, Service Layer");
             try
             {
-                return await _context.Tags.Where(l => l.Id == id).FirstOrDefaultAsync();
+                //if all books are cached we enter
+                if (_memoryCache.TryGetValue(cacheKey, out cachedTags))
+                {
+                    //we try to get the specific book from the cache
+                    _logger.LogInformation($"{_logName}s retrieved from cache");
+                    return cachedTags?.Where(l => l.Id == id).FirstOrDefault();
+                }
+                else
+                {
+                    //if there is no cache then we call database
+                    _logger.LogInformation($"{_logName}s not found in cache");
+
+                    cachedTags = await _context.Tags.ToListAsync();
+                    return await _context.Tags.Where(l => l.Id == id).FirstOrDefaultAsync();
+
+                }
+
             }
             catch (Exception ex)
             {
