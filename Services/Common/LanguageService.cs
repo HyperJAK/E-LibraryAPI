@@ -57,7 +57,12 @@ namespace ELib_IDSFintech_Internship.Services.Common
                 _context.Languages.Remove(entity);
 
                 //returns how many entries were deleted (should be 1 if it found the location that needs deleting)
-                return await _context.SaveChangesAsync();
+                var affectedItems = await _context.SaveChangesAsync();
+
+                //neccessairy to clear the cache after a delete
+                await ClearCache();
+
+                return affectedItems;
             }
             catch (Exception ex)
             {
@@ -138,7 +143,12 @@ namespace ELib_IDSFintech_Internship.Services.Common
                 _context.Entry(modifiedObject).State = EntityState.Modified;
 
                 //returns how many entries were updated (should be 1 if it found the location that needs updating)
-                return await _context.SaveChangesAsync();
+                var affectedItems = await _context.SaveChangesAsync();
+                
+                //neccessairy to clear the cache after an update
+                await ClearCache();
+
+                return affectedItems;
             }
             catch (Exception ex)
             {
