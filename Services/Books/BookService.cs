@@ -16,6 +16,8 @@ namespace ELib_IDSFintech_Internship.Services.Books
         private readonly string _logName = "Book";
         private readonly string cacheKey = "booksCaching";
 
+        private IEnumerable<Book>? cachedBooks;
+
 
 
         public BookService(Data.ELibContext context, ILogger<BookService> logger, IMemoryCache memoryCache)
@@ -73,7 +75,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
             try
             {
 
-                if(_memoryCache.TryGetValue(cacheKey, out IEnumerable<Book>? cachedBooks))
+                if(_memoryCache.TryGetValue(cacheKey, out cachedBooks))
                 {
                     _logger.LogInformation($"{_logName}s retrieved from cache");
                 }
@@ -107,7 +109,23 @@ namespace ELib_IDSFintech_Internship.Services.Books
             _logger.LogInformation($"Getting a single {_logName} using his ID: {id}, Service Layer");
             try
             {
-                return await _context.Books.Where(l => l.Id == id).FirstOrDefaultAsync();
+                //if all books are cached we enter
+                if (_memoryCache.TryGetValue(cacheKey, out cachedBooks))
+                {
+                    //we try to get the specific book from the cache
+                    _logger.LogInformation($"{_logName}s retrieved from cache");
+                    return cachedBooks?.Where(l => l.Id == id).FirstOrDefault();
+                }
+                else
+                {
+                    //if there is no cache then we call database
+                    _logger.LogInformation($"{_logName}s not found in cache");
+
+                    cachedBooks = await _context.Books.ToListAsync();
+                    return await _context.Books.Where(l => l.Id == id).FirstOrDefaultAsync();
+
+                }
+                
             }
             catch (Exception ex)
             {
