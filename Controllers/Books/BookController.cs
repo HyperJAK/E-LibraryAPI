@@ -148,5 +148,34 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
 
         }
 
+        [HttpDelete("api/clearCache")]
+        public async Task<IActionResult> ClearCache()
+        {
+            _logger.LogInformation($"Clearing all cached {_logName}s, Controller Layer");
+
+            try
+            {
+                var cleared =  await _service.ClearCache();
+
+                if (!cleared.Value)
+                {
+                    _logger.LogWarning($"No cached {_logName}s cleared");
+                    return NotFound();
+                }
+                else
+                {
+                    return Ok();
+                }
+
+                
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while clearing cached {_logName}s");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
     }
 }
