@@ -43,7 +43,7 @@ namespace ELib_IDSFintech_Internship.Models.Books
         public int? FileSizeInMB { get; set; }
 
         //For digital books only
-        public string? Format { get; set; }
+        public ICollection<BookFormat>? Format { get; set; }
 
         public required string Language { get; set; }
 

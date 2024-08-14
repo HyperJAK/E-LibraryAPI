@@ -41,15 +41,70 @@ namespace ELib_IDSFintech_Internship.Data
             };
 
             // Create some genres
-            var genre1 = new BookGenre
+            var genres = new List<BookGenre>
             {
-                Type = "Fantasy",
+                new BookGenre { Type = "Adventure" },
+                new BookGenre { Type = "ScienceFiction" },
+                new BookGenre { Type = "Fantasy" },
+                new BookGenre { Type = "HistoricalFiction" },
+                new BookGenre { Type = "Mystery" },
+                new BookGenre { Type = "Thriller" },
+                new BookGenre { Type = "Romance" },
+                new BookGenre { Type = "Horror" },
+                new BookGenre { Type = "LiteraryFiction" },
+                new BookGenre { Type = "YoungAdult" },
+                new BookGenre { Type = "ChildrensFiction" },
+                new BookGenre { Type = "Dystopian" },
+                new BookGenre { Type = "MagicalRealism" },
+                new BookGenre { Type = "Paranormal" },
+                new BookGenre { Type = "ContemporaryFiction" },
+                new BookGenre { Type = "GraphicNovels" },
+                new BookGenre { Type = "RomanticSuspense" },
+                new BookGenre { Type = "HistoricalRomance" },
+                new BookGenre { Type = "EpicFantasy" },
+                new BookGenre { Type = "UrbanFantasy" },
+                new BookGenre { Type = "Biography" },
+                new BookGenre { Type = "Autobiography" },
+                new BookGenre { Type = "Memoir" },
+                new BookGenre { Type = "SelfHelp" },
+                new BookGenre { Type = "TrueCrime" },
+                new BookGenre { Type = "Travel" },
+                new BookGenre { Type = "Cookbooks" },
+                new BookGenre { Type = "HealthAndWellness" },
+                new BookGenre { Type = "Psychology" },
+                new BookGenre { Type = "ReligionAndSpirituality" },
+                new BookGenre { Type = "Philosophy" },
+                new BookGenre { Type = "Politics" },
+                new BookGenre { Type = "Science" },
+                new BookGenre { Type = "History" },
+                new BookGenre { Type = "BusinessAndEconomics" },
+                new BookGenre { Type = "Education" },
+                new BookGenre { Type = "Parenting" },
+                new BookGenre { Type = "ScienceAndNature" },
+                new BookGenre { Type = "Technology" },
+                new BookGenre { Type = "Reference" },
+                new BookGenre { Type = "AlternateHistory" },
+                new BookGenre { Type = "CozyMystery" },
+                new BookGenre { Type = "Cyberpunk" },
+                new BookGenre { Type = "Steampunk" },
+                new BookGenre { Type = "LiteraryCriticism" },
+                new BookGenre { Type = "Sports" },
+                new BookGenre { Type = "MilitaryFiction" },
+                new BookGenre { Type = "Western" },
+                new BookGenre { Type = "Supernatural" },
+                new BookGenre { Type = "MedicalFiction" },
+                new BookGenre { Type = "ClassicLiterature" },
+                new BookGenre { Type = "Erotica" },
+                new BookGenre { Type = "GothicFiction" },
+                new BookGenre { Type = "LegalThriller" },
+                new BookGenre { Type = "HistoricalMystery" },
+                new BookGenre { Type = "ScienceFantasy" },
+                new BookGenre { Type = "HighFantasy" },
+                new BookGenre { Type = "SwordAndSorcery" },
+                new BookGenre { Type = "Mythology" },
+                new BookGenre { Type = "Essays" }
             };
 
-            var genre2 = new BookGenre
-            {
-                Type = "Dystopian",
-            };
 
             // Create some book locations
             var location1 = new BookLocation
@@ -67,15 +122,93 @@ namespace ELib_IDSFintech_Internship.Data
             };
 
             // Create some book tags
-            var tag1 = new BookTag
+            var tags = new List<BookTag>
             {
-                Type = "YoungAdult",
+                new BookTag { Type = "YoungAdult" },
+                new BookTag { Type = "Childrens" },
+                new BookTag { Type = "Adult" },
+
+                new BookTag { Type = "Mystery" },
+                new BookTag { Type = "Thriller" },
+                new BookTag { Type = "Romance" },
+                new BookTag { Type = "ScienceFiction" },
+                new BookTag { Type = "Fantasy" },
+                new BookTag { Type = "Historical" },
+                new BookTag { Type = "NonFiction" },
+                new BookTag { Type = "Biography" },
+                new BookTag { Type = "Memoir" },
+                new BookTag { Type = "SelfHelp" },
+                new BookTag { Type = "TrueCrime" },
+                new BookTag { Type = "Adventure" },
+                new BookTag { Type = "Horror" },
+                new BookTag { Type = "Dystopian" },
+                new BookTag { Type = "Paranormal" },
+                new BookTag { Type = "Contemporary" },
+                new BookTag { Type = "Classic" },
+                new BookTag { Type = "GraphicNovel" },
+                new BookTag { Type = "ShortStories" },
+                new BookTag { Type = "Poetry" },
+
+                new BookTag { Type = "ComingOfAge" },
+                new BookTag { Type = "Family" },
+                new BookTag { Type = "Friendship" },
+                new BookTag { Type = "War" },
+                new BookTag { Type = "Survival" },
+                new BookTag { Type = "Magic" },
+                new BookTag { Type = "Crime" },
+                new BookTag { Type = "Politics" },
+                new BookTag { Type = "Technology" },
+                new BookTag { Type = "Religion" },
+                new BookTag { Type = "Spirituality" },
+                new BookTag { Type = "Philosophy" },
+                new BookTag { Type = "Nature" },
+                new BookTag { Type = "Science" },
+                new BookTag { Type = "Travel" },
+                new BookTag { Type = "Humor" },
+                new BookTag { Type = "Satire" },
+
+                new BookTag { Type = "HistoricalFiction" },
+                new BookTag { Type = "UrbanFantasy" },
+                new BookTag { Type = "EpicFantasy" },
+                new BookTag { Type = "SpaceOpera" },
+                new BookTag { Type = "Cyberpunk" },
+                new BookTag { Type = "Steampunk" },
+                new BookTag { Type = "CozyMystery" },
+                new BookTag { Type = "LegalThriller" },
+                new BookTag { Type = "PsychologicalThriller" },
+                new BookTag { Type = "RomanticComedy" },
+                new BookTag { Type = "HistoricalRomance" },
+                new BookTag { Type = "MedicalFiction" },
+                new BookTag { Type = "Supernatural" },
+                new BookTag { Type = "Gothic" },
+                new BookTag { Type = "AlternateHistory" },
+
+                new BookTag { Type = "Feminism" },
+                new BookTag { Type = "SocialJustice" },
+                new BookTag { Type = "MentalHealth" },
+                new BookTag { Type = "Environmental" },
+                new BookTag { Type = "Inspirational" },
+                new BookTag { Type = "Sports" },
+                new BookTag { Type = "Education" },
+                new BookTag { Type = "Business" },
+                new BookTag { Type = "Economics" },
+                new BookTag { Type = "Parenting" },
+                new BookTag { Type = "HealthAndWellness" },
+                new BookTag { Type = "Cooking" },
+                new BookTag { Type = "Art" },
+                new BookTag { Type = "Photography" }
             };
 
-            var tag2 = new BookTag
+            var bookFormats = new List<BookFormat>
             {
-                Type = "Adventure",
+                new BookFormat { Type = "ePub" },
+                new BookFormat { Type = "MOBI" },
+                new BookFormat { Type = "PDF" },
+                new BookFormat { Type = "AZW" },
+                new BookFormat { Type = "KFX" }
             };
+
+
 
             // Create some books
             var book1 = new Book
@@ -92,8 +225,8 @@ namespace ELib_IDSFintech_Internship.Data
                 PageCount = 328,
                 Language = "English",
                 Author = author1,
-                Genres = new List<BookGenre> { genre2 },
-                Tags = new List<BookTag> { tag1, tag2 },
+                Genres = new List<BookGenre> { genres[0], genres[5] },
+                Tags = new List<BookTag> { tags[0], tags[2] },
                 TimeStamp = DateTime.Now,
             };
 
@@ -106,14 +239,14 @@ namespace ELib_IDSFintech_Internship.Data
                 Type = "Digital",
                 PhysicalBookAvailability = false,
                 DigitalBookURL = "http://example.com/harrypotter1",
-                Format = "ePub",
+                Format = new List<BookFormat> { bookFormats[0], bookFormats[1] },
                 Publisher = "Bloomsbury",
                 PageCount = 223,
                 FileSizeInMB = 5,
                 Language = "English",
                 Author = author2,
-                Genres = new List<BookGenre> { genre1 },
-                Tags = new List<BookTag> { tag1 },
+                Genres = new List<BookGenre> { genres[3] },
+                Tags = new List<BookTag> { tags[6] },
                 TimeStamp = DateTime.Now,
             };
 
@@ -182,9 +315,10 @@ namespace ELib_IDSFintech_Internship.Data
 
             // Add entities to context
             context.Authors.AddRange(author1, author2);
-            context.Genres.AddRange(genre1, genre2);
+            context.Genres.AddRange(genres);
             context.BookLocations.AddRange(location1, location2);
-            context.Tags.AddRange(tag1, tag2);
+            context.Tags.AddRange(tags);
+            context.BookFormats.AddRange(bookFormats);
             context.Books.AddRange(book1, book2);
             context.CreditCards.AddRange(creditCard1, creditCard2);
             context.Subscriptions.AddRange(subscription1, subscription2);

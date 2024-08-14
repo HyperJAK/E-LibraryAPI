@@ -5,35 +5,33 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace ELib_IDSFintech_Internship.Services.Books
 {
-    public class BookService : IBookRepository
+    public class BookFormatService : IBookFormatRepository
     {
 
         private readonly Data.ELibContext _context;
-        private readonly ILogger<BookService> _logger;
+        private readonly ILogger<BookFormatService> _logger;
         private readonly IMemoryCache _memoryCache;
 
         //conveniently used when was copy pasting from another controller to this, and left behind.
-        private readonly string _logName = "Book";
+        private readonly string _logName = "BookFormat";
 
-        private readonly string cacheKey = "booksCaching";
-        private IEnumerable<Book>? cachedBooks;
+        private readonly string cacheKey = "bookFormatsCaching";
+        private IEnumerable<BookFormat>? cachedBookFormats;
 
 
-
-        public BookService(Data.ELibContext context, ILogger<BookService> logger, IMemoryCache memoryCache)
+        public BookFormatService(Data.ELibContext context, ILogger<BookFormatService> logger, IMemoryCache memoryCache)
         {
             _context = context;
             _logger = logger;
             _memoryCache = memoryCache;
         }
 
-
-        public async Task<int?> Create(Book newObject)
+        public async Task<int?> Create(BookFormat newObject)
         {
             _logger.LogInformation($"Creating a {_logName}, Service Layer");
             try
             {
-                _context.Books.Add(newObject);
+                _context.BookFormats.Add(newObject);
 
                 //returns how many entries were Created (should be 1)
                 return await _context.SaveChangesAsync();
@@ -50,14 +48,14 @@ namespace ELib_IDSFintech_Internship.Services.Books
             _logger.LogInformation($"Deleting a {_logName}, Service Layer");
             try
             {
-                var entity = await _context.Books.Where(x => x.Id == id).FirstOrDefaultAsync();
+                var entity = await _context.BookFormats.Where(x => x.Id == id).FirstOrDefaultAsync();
 
                 if (entity == null)
                 {
                     _logger.LogInformation($"No {_logName} found");
                     return null;
                 }
-                _context.Books.Remove(entity);
+                _context.BookFormats.Remove(entity);
 
                 //returns how many entries were deleted (should be 1 if it found the location that needs deleting)
                 return await _context.SaveChangesAsync();
@@ -69,13 +67,13 @@ namespace ELib_IDSFintech_Internship.Services.Books
             }
         }
 
-        public async Task<IEnumerable<Book>?> GetAll()
+        public async Task<IEnumerable<BookFormat>?> GetAll()
         {
             _logger.LogInformation($"Getting all {_logName}s information, Service Layer");
             try
             {
 
-                if(_memoryCache.TryGetValue(cacheKey, out cachedBooks))
+                if (_memoryCache.TryGetValue(cacheKey, out cachedBookFormats))
                 {
                     _logger.LogInformation($"{_logName}s retrieved from cache");
                 }
@@ -83,7 +81,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
                 {
                     _logger.LogInformation($"{_logName}s not found in cache");
 
-                    cachedBooks = await _context.Books.ToListAsync();
+                    cachedBookFormats = await _context.BookFormats.ToListAsync();
 
                     //Setting behavior of the cached items after a certain passed time
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
@@ -91,10 +89,10 @@ namespace ELib_IDSFintech_Internship.Services.Books
                         .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
                         .SetPriority(CacheItemPriority.Normal);
 
-                    _memoryCache.Set(cacheKey, cachedBooks, cacheEntryOptions);
+                    _memoryCache.Set(cacheKey, cachedBookFormats, cacheEntryOptions);
                 }
 
-                return cachedBooks;
+                return cachedBookFormats;
             }
             catch (Exception ex)
             {
@@ -103,28 +101,28 @@ namespace ELib_IDSFintech_Internship.Services.Books
             }
         }
 
-        public async Task<Book?> GetById(int id)
+        public async Task<BookFormat?> GetById(int id)
         {
             _logger.LogInformation($"Getting a single {_logName} using his ID: {id}, Service Layer");
             try
             {
                 //if all books are cached we enter
-                if (_memoryCache.TryGetValue(cacheKey, out cachedBooks))
+                if (_memoryCache.TryGetValue(cacheKey, out cachedBookFormats))
                 {
                     //we try to get the specific book from the cache
                     _logger.LogInformation($"{_logName}s retrieved from cache");
-                    return cachedBooks?.Where(l => l.Id == id).FirstOrDefault();
+                    return cachedBookFormats?.Where(l => l.Id == id).FirstOrDefault();
                 }
                 else
                 {
                     //if there is no cache then we call database
                     _logger.LogInformation($"{_logName}s not found in cache");
 
-                    cachedBooks = await _context.Books.ToListAsync();
-                    return await _context.Books.Where(l => l.Id == id).FirstOrDefaultAsync();
+                    cachedBookFormats = await _context.BookFormats.ToListAsync();
+                    return await _context.BookFormats.Where(l => l.Id == id).FirstOrDefaultAsync();
 
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -133,7 +131,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
             }
         }
 
-        public async Task<int?> Update(Book modifiedObject)
+        public async Task<int?> Update(BookFormat modifiedObject)
         {
             _logger.LogInformation($"Updating a {_logName}, Service Layer");
             try

@@ -43,6 +43,7 @@ namespace ELib_IDSFintech_Internship.Data
 
         public DbSet<BookGenre> Genres => Set<BookGenre>();
         public DbSet<BookTag> Tags => Set<BookTag>();
+        public DbSet<BookFormat> BookFormats => Set<BookFormat>();
 
         public DbSet<BookAuthor> Authors => Set<BookAuthor>();
         public DbSet<BookLocation> BookLocations => Set<BookLocation>();
