@@ -1,6 +1,7 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
 using ELib_IDSFintech_Internship.Repositories.Books;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace ELib_IDSFintech_Internship.Services.Books
 {
@@ -9,17 +10,21 @@ namespace ELib_IDSFintech_Internship.Services.Books
 
         private readonly Data.ELibContext _context;
         private readonly ILogger<BookService> _logger;
+        private readonly IMemoryCache _memoryCache;
 
         //conveniently used when was copy pasting from another controller to this, and left behind.
         private readonly string _logName = "Book";
+        private readonly string cacheKey = "booksCaching";
 
 
 
-        public BookService(Data.ELibContext context, ILogger<BookService> logger)
+        public BookService(Data.ELibContext context, ILogger<BookService> logger, IMemoryCache memoryCache)
         {
             _context = context;
             _logger = logger;
+            _memoryCache = memoryCache;
         }
+
 
         public async Task<int?> Create(Book newObject)
         {
@@ -67,7 +72,28 @@ namespace ELib_IDSFintech_Internship.Services.Books
             _logger.LogInformation($"Getting all {_logName}s information, Service Layer");
             try
             {
-                return await _context.Books.ToListAsync();
+
+                if(_memoryCache.TryGetValue(cacheKey, out IEnumerable<Book>? cachedBooks))
+                {
+                    _logger.LogInformation($"{_logName}s retrieved from cache");
+                }
+                else
+                {
+                    _logger.LogInformation($"{_logName}s not found in cache");
+
+                    cachedBooks = await _context.Books.ToListAsync();
+
+                    //Setting behavior of the cached items after a certain passed time
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromSeconds(45))
+                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
+                        .SetPriority(CacheItemPriority.Normal);
+
+                    _memoryCache.Set(cacheKey, cachedBooks, cacheEntryOptions);
+                }
+
+
+                return cachedBooks;
             }
             catch (Exception ex)
             {
@@ -103,6 +129,24 @@ namespace ELib_IDSFintech_Internship.Services.Books
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Failed to update the {_logName}, in Service Layer");
+                throw ex;
+            }
+        }
+
+        public Task<bool?> ClearCache()
+        {
+            _logger.LogInformation($"Clearing all cached {_logName}s, Service Layer");
+            try
+            {
+                _memoryCache.Remove(cacheKey);
+
+                _logger.LogInformation($"Cleared all cached {_logName}s");
+
+                return Task.FromResult<bool?>(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to clear the cached {_logName}s, in Service Layer");
                 throw ex;
             }
         }
