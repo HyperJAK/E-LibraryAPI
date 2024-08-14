@@ -8,6 +8,6 @@ namespace ELib_IDSFintech_Internship.Models.Books
         [Key]
         public int Id { get; set; }
 
-        public required BookTagType Type { get; set; }
+        public required string Type { get; set; }
     }
 }

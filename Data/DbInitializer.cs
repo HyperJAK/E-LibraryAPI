@@ -43,12 +43,12 @@ namespace ELib_IDSFintech_Internship.Data
             // Create some genres
             var genre1 = new BookGenre
             {
-                Type = BookGenreType.Fantasy,
+                Type = "Fantasy",
             };
 
             var genre2 = new BookGenre
             {
-                Type = BookGenreType.Dystopian,
+                Type = "Dystopian",
             };
 
             // Create some book locations
@@ -69,12 +69,12 @@ namespace ELib_IDSFintech_Internship.Data
             // Create some book tags
             var tag1 = new BookTag
             {
-                Type = BookTagType.YoungAdult,
+                Type = "YoungAdult",
             };
 
             var tag2 = new BookTag
             {
-                Type = BookTagType.Adventure,
+                Type = "Adventure",
             };
 
             // Create some books
@@ -84,13 +84,13 @@ namespace ELib_IDSFintech_Internship.Data
                 PublishingDate = new DateOnly(1949, 6, 8),
                 ISBN = "978-0451524935",
                 Description = "A dystopian novel set in a totalitarian society ruled by Big Brother.",
-                Type = BookType.Physical,
+                Type = "Physical",
                 PhysicalBookAvailability = true,
                 PhysicalBookCount = 3,
                 PhysicalBookLocation = location1,
                 Publisher = "Secker & Warburg",
                 PageCount = 328,
-                Language = LanguageType.English,
+                Language = "English",
                 Author = author1,
                 Genres = new List<BookGenre> { genre2 },
                 Tags = new List<BookTag> { tag1, tag2 },
@@ -103,14 +103,14 @@ namespace ELib_IDSFintech_Internship.Data
                 PublishingDate = new DateOnly(1997, 6, 26),
                 ISBN = "978-0747532699",
                 Description = "The first book in the Harry Potter series, introducing the world of magic and Hogwarts.",
-                Type = BookType.Digital,
+                Type = "Digital",
                 PhysicalBookAvailability = false,
                 DigitalBookURL = "http://example.com/harrypotter1",
-                Format = BookFormatType.ePub,
+                Format = "ePub",
                 Publisher = "Bloomsbury",
                 PageCount = 223,
                 FileSizeInMB = 5,
-                Language = LanguageType.English,
+                Language = "English",
                 Author = author2,
                 Genres = new List<BookGenre> { genre1 },
                 Tags = new List<BookTag> { tag1 },
