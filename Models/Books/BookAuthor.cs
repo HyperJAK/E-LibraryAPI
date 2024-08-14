@@ -16,5 +16,8 @@ namespace ELib_IDSFintech_Internship.Models.Books
         public DateOnly? BirthDate { get; set; }
 
         public required DateTime TimeStamp { get; set; }
+
+        //link to books
+        public ICollection<Book> Books { get; set; }
     }
 }

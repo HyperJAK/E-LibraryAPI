@@ -1,5 +1,6 @@
 ﻿using ELib_IDSFintech_Internship.Models.Common;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ELib_IDSFintech_Internship.Models.Books
 {
@@ -42,15 +43,20 @@ namespace ELib_IDSFintech_Internship.Models.Books
         public int? FileSizeInMB { get; set; }
 
         //For digital books only
-        public ICollection<BookFormat>? Format { get; set; }
+        public ICollection<BookFormat>? Formats { get; set; } = new List<BookFormat>();
 
-        public required ICollection<Language> Languages { get; set; }
+        public required ICollection<Language> Languages { get; set; } = new List<Language>();
 
-        public ICollection<BookGenre>? Genres { get; set; }
+        public ICollection<BookGenre>? Genres { get; set; } = new List<BookGenre>();
 
-        public ICollection<BookTag>? Tags { get; set; }
+        public ICollection<BookTag>? Tags { get; set; } = new List<BookTag>();
 
+        //Author
+        public int AuthorId { get; set; }
+        [ForeignKey("AuthorId")]
         public required BookAuthor Author { get; set; }
+        
+
 
         public required DateTime TimeStamp { get; set; }
     }

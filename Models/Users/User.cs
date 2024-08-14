@@ -1,5 +1,6 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ELib_IDSFintech_Internship.Models.Users
 {
@@ -20,8 +21,15 @@ namespace ELib_IDSFintech_Internship.Models.Users
         [MaxLength(30)]
         public string? PhoneNumber { get; set; }
 
+        public int? CreditCardId { get; set; }
+
+        [ForeignKey("CreditCardId")]
         public CreditCard? CreditCard { get; set; }
 
+        //subscription
+        public int? SubscriptionId { get; set; }
+
+        [ForeignKey("SubscriptionId")]
         public Subscription? Subscription { get; set; }
 
         public ICollection<Book>? Books { get; set; }
