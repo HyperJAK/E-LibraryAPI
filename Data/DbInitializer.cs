@@ -93,6 +93,7 @@ namespace ELib_IDSFintech_Internship.Data
                 Language = LanguageType.English,
                 Author = author1,
                 Genres = new List<BookGenre> { genre2 },
+                Tags = new List<BookTag> { tag1, tag2 },
                 TimeStamp = DateTime.Now,
             };
 
@@ -112,11 +113,10 @@ namespace ELib_IDSFintech_Internship.Data
                 Language = LanguageType.English,
                 Author = author2,
                 Genres = new List<BookGenre> { genre1 },
+                Tags = new List<BookTag> { tag1 },
                 TimeStamp = DateTime.Now,
             };
 
-
-            //creating stuff related to user
             // Create some subscriptions
             var subscription1 = new Subscription
             {
@@ -151,7 +151,7 @@ namespace ELib_IDSFintech_Internship.Data
                 TimeStamp = DateTime.Now,
             };
 
-            // Create some users
+            // Create some users and assign books
             var user1 = new User
             {
                 Username = "johndoe",
@@ -162,6 +162,7 @@ namespace ELib_IDSFintech_Internship.Data
                 Subscription = subscription1,
                 SubscriptionStartDate = new DateOnly(2023, 8, 9),
                 SubscriptionEndDate = new DateOnly(2023, 9, 8),
+                Books = new List<Book> { book1 },
                 TimeStamp = DateTime.Now,
             };
 
@@ -175,6 +176,7 @@ namespace ELib_IDSFintech_Internship.Data
                 Subscription = subscription2,
                 SubscriptionStartDate = new DateOnly(2023, 8, 9),
                 SubscriptionEndDate = new DateOnly(2023, 11, 7),
+                Books = new List<Book> { book2 },
                 TimeStamp = DateTime.Now,
             };
 
@@ -184,9 +186,6 @@ namespace ELib_IDSFintech_Internship.Data
             context.BookLocations.AddRange(location1, location2);
             context.Tags.AddRange(tag1, tag2);
             context.Books.AddRange(book1, book2);
-
-
-            // Add entities to context
             context.CreditCards.AddRange(creditCard1, creditCard2);
             context.Subscriptions.AddRange(subscription1, subscription2);
             context.Users.AddRange(user1, user2);
