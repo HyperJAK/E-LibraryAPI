@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ELib_IDSFintech_Internship.Models.Books;
+using System.ComponentModel.DataAnnotations;
 
 namespace ELib_IDSFintech_Internship.Models.Users
 {
@@ -12,5 +13,8 @@ namespace ELib_IDSFintech_Internship.Models.Users
         public double Price { get; set; }
 
         public DateOnly DurationInDays { get; set; }
+
+        //link to users
+        public ICollection<User> Users { get; set; }
     }
 }

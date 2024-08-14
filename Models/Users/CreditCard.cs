@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ELib_IDSFintech_Internship.Models.Books;
+using System.ComponentModel.DataAnnotations;
 
 namespace ELib_IDSFintech_Internship.Models.Users
 {
@@ -19,5 +20,8 @@ namespace ELib_IDSFintech_Internship.Models.Users
         public required DateOnly ExpirationDate { get; set; }
 
         public required DateTime TimeStamp { get; set; }
+
+        // Navigation property to Book
+        public User User { get; set; }
     }
 }

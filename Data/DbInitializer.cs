@@ -298,7 +298,7 @@ namespace ELib_IDSFintech_Internship.Data
                 Type = "Digital",
                 PhysicalBookAvailability = false,
                 DigitalBookURL = "http://example.com/harrypotter1",
-                Format = new List<BookFormat> { bookFormats[0], bookFormats[1] },
+                Formats = new List<BookFormat> { bookFormats[0], bookFormats[1] },
                 Publisher = "Bloomsbury",
                 PageCount = 223,
                 FileSizeInMB = 5,
