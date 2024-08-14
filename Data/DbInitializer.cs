@@ -1,9 +1,6 @@
-﻿using ELib_IDSFintech_Internship.Models.Books.Enums;
-using ELib_IDSFintech_Internship.Models.Books;
-using ELib_IDSFintech_Internship.Models.Users;
-using ELib_IDSFintech_Internship.Models.Users.Enums;
-using ELib_IDSFintech_Internship.Models.Enums;
+﻿using ELib_IDSFintech_Internship.Models.Books;
 using ELib_IDSFintech_Internship.Models.Common;
+using ELib_IDSFintech_Internship.Models.Users;
 
 namespace ELib_IDSFintech_Internship.Data
 {
@@ -111,25 +108,25 @@ namespace ELib_IDSFintech_Internship.Data
             {
                 new Subscription
                 {
-                    Type = SubscriptionType.None.ToString(),
+                    Type = "None",
                     Price = 0.00,
                     DurationInDays = new DateOnly(2023, 12, 31)
                 },
                 new Subscription
                 {
-                    Type = SubscriptionType.Basic.ToString(),
+                    Type = "Basic",
                     Price = 9.99,
                     DurationInDays = new DateOnly(2024, 12, 31)
                 },
                 new Subscription
                 {
-                    Type = SubscriptionType.Advanced.ToString(),
+                    Type = "Advanced",
                     Price = 14.99,
                     DurationInDays = new DateOnly(2024, 12, 31)
                 },
                 new Subscription
                 {
-                    Type = SubscriptionType.Premium.ToString(),
+                    Type = "Premium",
                     Price = 19.99,
                     DurationInDays = new DateOnly(2024, 12, 31)
                 }
@@ -264,7 +261,7 @@ namespace ELib_IDSFintech_Internship.Data
                 new Language { Type = "Danish" },
                 new Language { Type = "Norwegian" },
                 new Language { Type = "Finnish" },
-                new Language { Type = "Polish" }, 
+                new Language { Type = "Polish" },
                 new Language { Type = "Czech" },
                 new Language { Type = "Hungarian" },
                 new Language { Type = "Lebanese" }
@@ -312,7 +309,7 @@ namespace ELib_IDSFintech_Internship.Data
                 TimeStamp = DateTime.Now,
             };
 
-            
+
 
             // Create some credit cards
             var creditCard1 = new CreditCard

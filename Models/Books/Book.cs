@@ -1,7 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using ELib_IDSFintech_Internship.Models.Books.Enums;
-using ELib_IDSFintech_Internship.Models.Common;
-using ELib_IDSFintech_Internship.Models.Enums;
+﻿using ELib_IDSFintech_Internship.Models.Common;
+using System.ComponentModel.DataAnnotations;
 
 namespace ELib_IDSFintech_Internship.Models.Books
 {

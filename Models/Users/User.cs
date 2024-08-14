@@ -1,7 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using ELib_IDSFintech_Internship.Models.Books;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Components;
-using ELib_IDSFintech_Internship.Models.Books;
 
 namespace ELib_IDSFintech_Internship.Models.Users
 {

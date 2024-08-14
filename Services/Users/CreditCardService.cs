@@ -1,7 +1,5 @@
-﻿using ELib_IDSFintech_Internship.Models.Books;
-using ELib_IDSFintech_Internship.Models.Users;
+﻿using ELib_IDSFintech_Internship.Models.Users;
 using ELib_IDSFintech_Internship.Repositories.Users;
-using ELib_IDSFintech_Internship.Services.Books;
 using Microsoft.EntityFrameworkCore;
 
 namespace ELib_IDSFintech_Internship.Services.Users

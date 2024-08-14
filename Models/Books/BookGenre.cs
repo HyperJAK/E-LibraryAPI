@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using ELib_IDSFintech_Internship.Models.Books.Enums;
 
 namespace ELib_IDSFintech_Internship.Models.Books
 {
