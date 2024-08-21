@@ -146,6 +146,31 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
 
         }
 
+        [HttpGet("api/getBooksByGenre/{id}")]
+        public async Task<IActionResult> GetBooksByGenre(int id)
+        {
+            _logger.LogInformation($"Getting {_logName}s by Genre: {id}, Controller Layer");
+
+            try
+            {
+                var result = await _service.GetBooksByGenre(id);
+
+                if (result == null)
+                {
+                    _logger.LogWarning($"No {_logName} found in this genre");
+                    return NotFound();
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while getting {_logName}s by Genre: {id}, in Controller Layer");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
 
         [HttpPut("api/update")]
         public async Task<IActionResult> Update(Book modifiedObject)

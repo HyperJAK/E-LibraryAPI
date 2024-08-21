@@ -16,7 +16,9 @@ namespace ELib_IDSFintech_Internship.Services.Books
         private readonly string _logName = "Book";
 
         private readonly string cacheKey = "booksCaching";
+        private readonly string cacheKeyWithGenres = "booksWithGenresCaching";
         private IEnumerable<Book>? cachedBooks;
+        private IEnumerable<Book>? cachedBooksWithGenre;
 
 
 
@@ -126,6 +128,15 @@ namespace ELib_IDSFintech_Internship.Services.Books
                     _logger.LogInformation($"{_logName}s not found in cache");
 
                     cachedBooks = await _context.Books.ToListAsync();
+
+                    //Setting behavior of the cached items after a certain passed time
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromSeconds(45))
+                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
+                        .SetPriority(CacheItemPriority.Normal);
+
+                    _memoryCache.Set(cacheKey, cachedBooks, cacheEntryOptions);
+
                     return await _context.Books.Where(l => l.Id == id).FirstOrDefaultAsync();
 
                 }
@@ -197,6 +208,15 @@ namespace ELib_IDSFintech_Internship.Services.Books
                     _logger.LogInformation($"{_logName}s not found in cache");
 
                     cachedBooks = await _context.Books.ToListAsync();
+
+                    //Setting behavior of the cached items after a certain passed time
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromSeconds(45))
+                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
+                        .SetPriority(CacheItemPriority.Normal);
+
+                    _memoryCache.Set(cacheKey, cachedBooks, cacheEntryOptions);
+
                     var suggestions = cachedBooks?.Where(l => l.Title.StartsWith(name, StringComparison.OrdinalIgnoreCase)).Take(10).ToList();
                     return await Task.FromResult(suggestions);
 
@@ -229,6 +249,15 @@ namespace ELib_IDSFintech_Internship.Services.Books
                     _logger.LogInformation($"{_logName}s not found in cache");
 
                     cachedBooks = await _context.Books.ToListAsync();
+
+                    //Setting behavior of the cached items after a certain passed time
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromSeconds(45))
+                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
+                        .SetPriority(CacheItemPriority.Normal);
+
+                    _memoryCache.Set(cacheKey, cachedBooks, cacheEntryOptions);
+
                     var search = cachedBooks?.Where(l => l.Title.StartsWith(name, StringComparison.OrdinalIgnoreCase)).ToList();
                     return await Task.FromResult(search);
 
@@ -238,6 +267,47 @@ namespace ELib_IDSFintech_Internship.Services.Books
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"An error occurred while getting {_logName} search results with Name: {name}, in Services Layer");
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<Book>?> GetBooksByGenre(int id)
+        {
+            _logger.LogInformation($"Getting {_logName}s by Genre: {id}, Service Layer");
+            try
+            {
+                //if all books are cached we enter
+                if (_memoryCache.TryGetValue(cacheKeyWithGenres, out cachedBooksWithGenre))
+                {
+                    //we try to get the specific book from the cache
+                    _logger.LogInformation($"{_logName}s retrieved from cache");
+                    var search = cachedBooksWithGenre?.Where(book => book.Genres.Any(genre => genre.Id == id)).ToList();
+                    return await Task.FromResult(search);
+                }
+                else
+                {
+                    //if there is no cache then we call database
+                    _logger.LogInformation($"{_logName}s not found in cache");
+
+                    cachedBooksWithGenre = await _context.Books.Include(book => book.Genres).ToListAsync();
+
+                    //Setting behavior of the cached items after a certain passed time
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromSeconds(45))
+                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
+                        .SetPriority(CacheItemPriority.Normal);
+
+                    _memoryCache.Set(cacheKeyWithGenres, cachedBooksWithGenre, cacheEntryOptions);
+
+                    var search = cachedBooksWithGenre?.Where(book => book.Genres.Any(genre => genre.Id == id)).ToList();
+                    return await Task.FromResult(search);
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while getting {_logName}s by Genre: {id}, in Services Layer");
                 throw ex;
             }
         }

@@ -12,5 +12,8 @@ namespace ELib_IDSFintech_Internship.Repositories.Books
 
         //This retrieves books based on the given name
         public Task<IEnumerable<Book>?> GetSearchResultsByName(string name);
+
+        //This retrieves books based on the given genre id
+        public Task<IEnumerable<Book>?> GetBooksByGenre(int id);
     }
 }
