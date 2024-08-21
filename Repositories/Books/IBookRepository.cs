@@ -9,5 +9,8 @@ namespace ELib_IDSFintech_Internship.Repositories.Books
 
         //This retrieves a specific amount of suggested books based on entered name
         public Task<IEnumerable<Book>?> GetSuggestionsByName(string name);
+
+        //This retrieves books based on the given name
+        public Task<IEnumerable<Book>?> GetSearchResultsByName(string name);
     }
 }

@@ -209,5 +209,37 @@ namespace ELib_IDSFintech_Internship.Services.Books
                 throw ex;
             }
         }
+
+        public async Task<IEnumerable<Book>?> GetSearchResultsByName(string name)
+        {
+            _logger.LogInformation($"Getting {_logName} search results with Name: {name}, Service Layer");
+            try
+            {
+                //if all books are cached we enter
+                if (_memoryCache.TryGetValue(cacheKey, out cachedBooks))
+                {
+                    //we try to get the specific book from the cache
+                    _logger.LogInformation($"{_logName}s retrieved from cache");
+                    var search = cachedBooks?.Where(l => l.Title.StartsWith(name, StringComparison.OrdinalIgnoreCase)).ToList();
+                    return await Task.FromResult(search);
+                }
+                else
+                {
+                    //if there is no cache then we call database
+                    _logger.LogInformation($"{_logName}s not found in cache");
+
+                    cachedBooks = await _context.Books.ToListAsync();
+                    var search = cachedBooks?.Where(l => l.Title.StartsWith(name, StringComparison.OrdinalIgnoreCase)).ToList();
+                    return await Task.FromResult(search);
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while getting {_logName} search results with Name: {name}, in Services Layer");
+                throw ex;
+            }
+        }
     }
 }

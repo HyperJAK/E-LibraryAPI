@@ -121,6 +121,31 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
 
         }
 
+        [HttpGet("api/getSearchResults/{name}")]
+        public async Task<IActionResult> GetSearchResultsByName(string name)
+        {
+            _logger.LogInformation($"Getting {_logName} search results with Name: {name}, Controller Layer");
+
+            try
+            {
+                var result = await _service.GetSearchResultsByName(name);
+
+                if (result == null)
+                {
+                    _logger.LogWarning($"No {_logName} search results found");
+                    return NotFound();
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while getting {_logName} search results with Name: {name}, in Controller Layer");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
 
         [HttpPut("api/update")]
         public async Task<IActionResult> Update(Book modifiedObject)
