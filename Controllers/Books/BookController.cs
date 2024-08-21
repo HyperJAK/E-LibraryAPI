@@ -96,6 +96,31 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
 
         }
 
+        [HttpGet("api/getSuggestions/{name}")]
+        public async Task<IActionResult> GetSuggestionsByName(string name)
+        {
+            _logger.LogInformation($"Getting {_logName} suggestions with Name: {name}, Controller Layer");
+
+            try
+            {
+                var result = await _service.GetSuggestionsByName(name);
+
+                if (result == null)
+                {
+                    _logger.LogWarning($"No {_logName} suggestions found");
+                    return NotFound();
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while getting {_logName} suggestions with Name: {name}, in Controller Layer");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
 
         [HttpPut("api/update")]
         public async Task<IActionResult> Update(Book modifiedObject)
