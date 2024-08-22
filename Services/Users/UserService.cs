@@ -106,5 +106,21 @@ namespace ELib_IDSFintech_Internship.Services.Users
                 throw ex;
             }
         }
+
+        public async Task<User?> VerifyUser(VerificationRequest verificationObject)
+        {
+            _logger.LogInformation($"verifying a {_logName}, Service Layer");
+            try
+            {
+                var user = await _context.Users.Where(l => (l.Email == verificationObject.Email && l.Password == verificationObject.Password)).FirstOrDefaultAsync();
+
+                return user;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to verify the {_logName}, in Service Layer");
+                throw ex;
+            }
+        }
     }
 }

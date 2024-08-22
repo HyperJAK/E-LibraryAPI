@@ -47,6 +47,31 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
 
         }
 
+        [HttpPost("api/verifyUser")]
+        public async Task<IActionResult> VerifyUser(VerificationRequest verificationObject)
+        {
+            _logger.LogInformation($"Verifying a {_logName}, Controller Layer");
+
+            try
+            {
+                var user = await _service.VerifyUser(verificationObject);
+
+                if (user == null)
+                {
+                    _logger.LogWarning($"No {_logName} to verify");
+                    return NotFound();
+                }
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while verifying a {_logName}");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
         [HttpPost("api/create")]
         public async Task<IActionResult> Create(User newObject)
         {
