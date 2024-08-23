@@ -341,7 +341,7 @@ namespace ELib_IDSFintech_Internship.Data
                 Subscription = subscriptions[0],
                 SubscriptionStartDate = new DateOnly(2023, 8, 9),
                 SubscriptionEndDate = new DateOnly(2023, 9, 8),
-                Books = new List<Book> { book1 },
+                Books = new List<Book> { book1, book2 },
                 TimeStamp = DateTime.Now,
             };
 

@@ -1,4 +1,5 @@
-﻿using ELib_IDSFintech_Internship.Models.Users;
+﻿using ELib_IDSFintech_Internship.Models.Books;
+using ELib_IDSFintech_Internship.Models.Users;
 using ELib_IDSFintech_Internship.Repositories.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +20,59 @@ namespace ELib_IDSFintech_Internship.Services.Users
         {
             _context = context;
             _logger = logger;
+        }
+
+        //need to add more checks later for user and session ID
+        public async Task<int?> BorrowBook(int userId, Book entity)
+        {
+            _logger.LogInformation($"Borrowing a {_logName}, Service Layer");
+            try
+            {
+                var user = await _context.Users.Where(u => u.Id == userId).FirstOrDefaultAsync();
+                var latestBook = await _context.Books.Where(u => u.Id == entity.Id).FirstOrDefaultAsync();
+
+                if (user == null)
+                {
+                    _logger.LogInformation($"No {_logName} found");
+                    return -1;
+                }
+                if(latestBook.Type == "Physical")
+                {
+                    if (latestBook.PhysicalBookAvailability == true)
+                    {
+                        user.Books.Add(latestBook);
+
+                        latestBook.PhysicalBookCount--;
+
+                        if(latestBook.PhysicalBookCount == 0)
+                        {
+                            latestBook.PhysicalBookAvailability = false;
+                        }
+
+                        _context.Entry(latestBook).State = EntityState.Modified;
+
+                    }
+                }
+                else
+                {
+                    user.Books.Add(latestBook);
+                }
+
+               
+
+                //returns how many entries were Created (should be 1)
+                return await _context.SaveChangesAsync();
+
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to borrow the {_logName}, in Service Layer");
+                throw ex;
+            }
         }
 
         public async Task<int?> Create(User newObject)

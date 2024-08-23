@@ -1,4 +1,5 @@
-﻿using ELib_IDSFintech_Internship.Models.Users;
+﻿using ELib_IDSFintech_Internship.Models.Books;
+using ELib_IDSFintech_Internship.Models.Users;
 using ELib_IDSFintech_Internship.Services.Users;
 using Microsoft.AspNetCore.Mvc;
 
@@ -169,6 +170,32 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"An error occurred while deleting {_logName} with ID: {id}");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
+        //prefferably replace userId with session id or with an object that takes both
+        [HttpPost("api/borrowBook")]
+        public async Task<IActionResult> BorrowBook(int userId, Book book)
+        {
+            _logger.LogInformation($"Creating a {_logName}, Controller Layer");
+
+            try
+            {
+                var countDeleted = await _service.BorrowBook(userId, book);
+
+                if (countDeleted == null || countDeleted.Value <= 0)
+                {
+                    _logger.LogWarning($"No {_logName} ");
+                    return NotFound();
+                }
+
+                return Ok(countDeleted);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while creating {_logName}");
                 return StatusCode(500, "Internal server error");
             }
 

@@ -32,7 +32,7 @@ namespace ELib_IDSFintech_Internship.Models.Users
         [ForeignKey("SubscriptionId")]
         public Subscription? Subscription { get; set; }
 
-        public ICollection<Book>? Books { get; set; }
+        public ICollection<Book>? Books { get; set; } = new List<Book>();
 
         public DateOnly? SubscriptionStartDate { get; set; }
 

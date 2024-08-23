@@ -100,6 +100,17 @@ namespace ELib_IDSFintech_Internship.Data
             .HasMany(a => a.Books)
             .WithOne(b => b.PhysicalBookLocation)
             .HasForeignKey(b => b.LocationId);
+
+            //join table creation for book and user
+            modelBuilder.Entity<User>()
+            .HasMany(b => b.Books)
+            .WithMany(f => f.Users)
+            .UsingEntity<Dictionary<string, object>>(
+                "user_has_books",
+                j => j.HasOne<Book>().WithMany().HasForeignKey("BookId")
+                .OnDelete(DeleteBehavior.Cascade),
+                j => j.HasOne<User>().WithMany().HasForeignKey("UserId")
+            );
         }
 
         public DbSet<User> Users => Set<User>();

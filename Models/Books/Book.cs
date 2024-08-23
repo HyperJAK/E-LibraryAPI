@@ -1,4 +1,5 @@
 ﻿using ELib_IDSFintech_Internship.Models.Common;
+using ELib_IDSFintech_Internship.Models.Users;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -52,6 +53,8 @@ namespace ELib_IDSFintech_Internship.Models.Books
         public ICollection<BookGenre>? Genres { get; set; } = new List<BookGenre>();
 
         public ICollection<BookTag>? Tags { get; set; } = new List<BookTag>();
+
+        public ICollection<User>? Users { get; set; } = new List<User>();
 
         //Author
         public int AuthorId { get; set; }
