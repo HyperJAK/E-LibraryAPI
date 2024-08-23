@@ -183,15 +183,41 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
 
             try
             {
-                var countDeleted = await _service.BorrowBook(userId, book);
-
-                if (countDeleted == null || countDeleted.Value <= 0)
+                var result = await _service.BorrowBook(userId, book);
+                
+                switch (result)
                 {
-                    _logger.LogWarning($"No {_logName} ");
-                    return NotFound();
+                    //subscription needed
+                    case -3:
+                        {
+                            return StatusCode(433, "subscription needed");
+                        }
+
+                    //no book found
+                    case -2:
+                        {
+                            return StatusCode(432, "no book found");
+                        }
+                        
+                        // no user found
+                    case -1:
+                        {
+                            return StatusCode(431, "no user found");
+                        }
+
+                    default:
+                        //acceptable
+                        if (result > 0)
+                        {
+                            return Ok(result);
+                        }
+                        else
+                        {
+                            return BadRequest();
+                        }
+
                 }
 
-                return Ok(countDeleted);
             }
             catch (Exception ex)
             {

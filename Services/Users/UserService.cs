@@ -28,7 +28,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
             _logger.LogInformation($"Borrowing a {_logName}, Service Layer");
             try
             {
-                var user = await _context.Users.Where(u => u.Id == userId).FirstOrDefaultAsync();
+                var user = await _context.Users.Where(u => u.Id == userId).Include(l => l.Subscription).FirstOrDefaultAsync();
                 var latestBook = await _context.Books.Where(u => u.Id == entity.Id).FirstOrDefaultAsync();
 
                 if (user == null)
@@ -36,6 +36,17 @@ namespace ELib_IDSFintech_Internship.Services.Users
                     _logger.LogInformation($"No {_logName} found");
                     return -1;
                 }
+                if (user == null)
+                {
+                    _logger.LogInformation($"No Book found");
+                    return -2;
+                }
+                if (user.Subscription != null)
+                {
+                    _logger.LogInformation($"No {_logName} subscription found");
+                    return -3;
+                }
+
                 if(latestBook.Type == "Physical")
                 {
                     if (latestBook.PhysicalBookAvailability == true)
