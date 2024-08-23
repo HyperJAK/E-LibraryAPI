@@ -59,7 +59,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
                 var affectedItems = await _context.SaveChangesAsync();
 
                 //neccessairy to clear the cache after a delete
-                await ClearCache();
+                await ClearCache($"Book_{id}");
 
                 return affectedItems;
             }
@@ -164,7 +164,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
                 var affectedItems = await _context.SaveChangesAsync();
 
                 //neccessairy to clear the cache after an update
-                await ClearCache();
+                await ClearCache($"Book_{modifiedObject.Id}");
 
                 return affectedItems;
             }
@@ -175,7 +175,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
             }
         }
 
-        public Task<bool?> ClearCache()
+        public Task<bool?> ClearCache(string key)
         {
             _logger.LogInformation($"Clearing all cached {_logName}s, Service Layer");
 

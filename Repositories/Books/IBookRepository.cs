@@ -5,7 +5,7 @@ namespace ELib_IDSFintech_Internship.Repositories.Books
     public interface IBookRepository : IDefaultRepository<Book>
     {
         //This clears the cached data in memory
-        public Task<bool?> ClearCache();
+        public Task<bool?> ClearCache(string key);
 
         //This retrieves a specific amount of suggested books based on entered name
         public Task<IEnumerable<Book>?> GetSuggestionsByName(string name);
