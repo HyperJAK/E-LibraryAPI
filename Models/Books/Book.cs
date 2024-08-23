@@ -29,7 +29,9 @@ namespace ELib_IDSFintech_Internship.Models.Books
         [MaxLength(500)]
         public string? DigitalBookURL { get; set; }
 
-        //Shelf B2 row 2 col 4 for example
+        //Location: Shelf B2 row 2 col 4 for example
+        public int LocationId { get; set; }
+        [ForeignKey("LocationId")]
         public BookLocation? PhysicalBookLocation { get; set; }
 
         [MaxLength(100)]

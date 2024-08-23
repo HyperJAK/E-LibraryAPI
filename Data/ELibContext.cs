@@ -38,6 +38,12 @@ namespace ELib_IDSFintech_Internship.Data
             .WithOne(b => b.Author)
             .HasForeignKey(b => b.AuthorId);
 
+            //Forein key creation for Location, key is in books
+            modelBuilder.Entity<BookLocation>()
+            .HasMany(a => a.Books)
+            .WithOne(b => b.PhysicalBookLocation)
+            .HasForeignKey(b => b.LocationId);
+
             //Forein key creation for Subscription, key is in users
             modelBuilder.Entity<Subscription>()
             .HasMany(a => a.Users)
