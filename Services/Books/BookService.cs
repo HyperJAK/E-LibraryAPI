@@ -165,7 +165,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
 
                 //neccessairy to clear the cache after an update
                 await ClearCache($"Book_{modifiedObject.Id}");
-
+                
                 return affectedItems;
             }
             catch (Exception ex)

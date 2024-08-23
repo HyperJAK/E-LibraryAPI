@@ -224,13 +224,13 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
         }
 
         [HttpDelete("api/clearCache")]
-        public async Task<IActionResult> ClearCache()
+        public async Task<IActionResult> ClearCache(string key)
         {
             _logger.LogInformation($"Clearing all cached {_logName}s, Controller Layer");
 
             try
             {
-                var cleared = await _service.ClearCache();
+                var cleared = await _service.ClearCache(key);
 
                 if (!cleared.Value)
                 {
