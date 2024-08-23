@@ -30,7 +30,7 @@ namespace ELib_IDSFintech_Internship.Models.Books
         public string? DigitalBookURL { get; set; }
 
         //Location: Shelf B2 row 2 col 4 for example
-        public int LocationId { get; set; }
+        public int? LocationId { get; set; }
         [ForeignKey("LocationId")]
         public BookLocation? PhysicalBookLocation { get; set; }
 

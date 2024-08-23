@@ -19,6 +19,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
         private readonly string cacheKeyWithGenres = "booksWithGenresCaching";
         private IEnumerable<Book>? cachedBooks;
         private IEnumerable<Book>? cachedBooksWithGenre;
+        private IEnumerable<Book>? cachedBooksWithAllInfo;
 
 
 
@@ -112,42 +113,49 @@ namespace ELib_IDSFintech_Internship.Services.Books
 
         public async Task<Book?> GetById(int id)
         {
-            _logger.LogInformation($"Getting a single {_logName} using his ID: {id}, Service Layer");
+            _logger.LogInformation($"Getting a single {_logName} using its ID: {id}, Service Layer");
+
+            var cacheKey = $"Book_{id}";
+
             try
             {
-                //if all books are cached we enter
-                if (_memoryCache.TryGetValue(cacheKey, out cachedBooks))
+                if (_memoryCache.TryGetValue(cacheKey, out Book? cachedBook))
                 {
-                    //we try to get the specific book from the cache
-                    _logger.LogInformation($"{_logName}s retrieved from cache");
-                    return cachedBooks?.Where(l => l.Id == id).FirstOrDefault();
+                    _logger.LogInformation($"{_logName} retrieved from cache");
+                    return cachedBook;
                 }
-                else
+
+                _logger.LogInformation($"{_logName} not found in cache");
+
+                var book = await _context.Books
+                    .Include(b => b.Author)
+                    .Include(b => b.PhysicalBookLocation)
+                    .Include(b => b.Languages)
+                    .Include(b => b.Genres)
+                    .Include(b => b.Tags)
+                    .Include(b => b.Formats)
+                    .FirstOrDefaultAsync(b => b.Id == id);
+
+                if (book != null)
                 {
-                    //if there is no cache then we call database
-                    _logger.LogInformation($"{_logName}s not found in cache");
-
-                    cachedBooks = await _context.Books.ToListAsync();
-
                     //Setting behavior of the cached items after a certain passed time
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
                         .SetSlidingExpiration(TimeSpan.FromSeconds(45))
                         .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
                         .SetPriority(CacheItemPriority.Normal);
 
-                    _memoryCache.Set(cacheKey, cachedBooks, cacheEntryOptions);
-
-                    return await _context.Books.Where(l => l.Id == id).FirstOrDefaultAsync();
-
+                    _memoryCache.Set(cacheKey, book, cacheEntryOptions);
                 }
 
+                return book;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Failed to get the {_logName} with supposed ID: {id}, in Services Layer");
-                throw ex;
+                _logger.LogError(ex, $"Failed to get the {_logName} with ID: {id}, in Services Layer");
+                throw;
             }
         }
+
 
         public async Task<int?> Update(Book modifiedObject)
         {
