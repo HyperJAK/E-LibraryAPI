@@ -54,7 +54,7 @@ namespace ELib_IDSFintech_Internship.Models.Books
 
         public ICollection<BookTag>? Tags { get; set; } = new List<BookTag>();
 
-        public ICollection<User>? Users { get; set; } = new List<User>();
+        public ICollection<UserHasBooks> UserBooks { get; set; } = new List<UserHasBooks>();
 
         //Author
         public int AuthorId { get; set; }

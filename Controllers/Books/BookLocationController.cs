@@ -56,7 +56,7 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
             {
                 var countCreated = await _service.Create(newObject);
 
-                if (countCreated == null || countCreated.Value <= 0)
+                if (countCreated == null)
                 {
                     _logger.LogWarning($"No {_logName} Updated");
                     return NotFound();

@@ -27,7 +27,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
             _memoryCache = memoryCache;
         }
 
-        public async Task<int?> Create(BookGenre newObject)
+        public async Task<BookGenre?> Create(BookGenre newObject)
         {
             _logger.LogInformation($"Creating a {_logName}, Service Layer");
             try
@@ -35,7 +35,11 @@ namespace ELib_IDSFintech_Internship.Services.Books
                 _context.Genres.Add(newObject);
 
                 //returns how many entries were Created (should be 1)
-                return await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
+
+                var getUpdated = await _context.Genres.Where(x => x.Id == newObject.Id).FirstOrDefaultAsync();
+
+                return getUpdated;
             }
             catch (Exception ex)
             {

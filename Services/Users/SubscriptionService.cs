@@ -21,7 +21,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
             _logger = logger;
         }
 
-        public async Task<int?> Create(Subscription newObject)
+        public async Task<Subscription?> Create(Subscription newObject)
         {
             _logger.LogInformation($"Creating a {_logName}, Service Layer");
             try
@@ -29,7 +29,11 @@ namespace ELib_IDSFintech_Internship.Services.Users
                 _context.Subscriptions.Add(newObject);
 
                 //returns how many entries were Created (should be 1)
-                return await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
+
+                var getUpdated = await _context.Subscriptions.Where(x => x.Id == newObject.Id).FirstOrDefaultAsync();
+
+                return getUpdated;
             }
             catch (Exception ex)
             {

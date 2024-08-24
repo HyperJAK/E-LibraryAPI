@@ -24,7 +24,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
         }
 
 
-        public async Task<int?> Create(Book newObject)
+        public async Task<Book?> Create(Book newObject)
         {
             _logger.LogInformation($"Creating a {_logName}, Service Layer");
             try
@@ -32,7 +32,11 @@ namespace ELib_IDSFintech_Internship.Services.Books
                 _context.Books.Add(newObject);
 
                 //returns how many entries were Created (should be 1)
-                return await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
+
+                var getUpdated = await _context.Books.Where(x => x.Id == newObject.Id).FirstOrDefaultAsync();
+
+                return getUpdated;
             }
             catch (Exception ex)
             {
@@ -179,11 +183,9 @@ namespace ELib_IDSFintech_Internship.Services.Books
         {
             _logger.LogInformation($"Clearing all cached {_logName}s, Service Layer");
 
-            var cacheKey = $"Book_all";
-
             try
             {
-                _memoryCache.Remove(cacheKey);
+                _memoryCache.Remove(key);
 
                 _logger.LogInformation($"Cleared all cached {_logName}s");
 

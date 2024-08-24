@@ -341,7 +341,21 @@ namespace ELib_IDSFintech_Internship.Data
                 Subscription = subscriptions[0],
                 SubscriptionStartDate = new DateOnly(2023, 8, 9),
                 SubscriptionEndDate = new DateOnly(2023, 9, 8),
-                Books = new List<Book> { book1, book2 },
+                UserBooks = new List<UserHasBooks>
+                {
+                    new UserHasBooks
+                    {
+                        Book = book1,
+                        BorrowedDate = DateTime.Now,
+                        DueDate = DateTime.Now.AddDays(14)
+                    },
+                    new UserHasBooks
+                    {
+                        Book = book2,
+                        BorrowedDate = DateTime.Now,
+                        DueDate = DateTime.Now.AddDays(14)
+                    }
+                },
                 TimeStamp = DateTime.Now,
             };
 
@@ -355,7 +369,15 @@ namespace ELib_IDSFintech_Internship.Data
                 Subscription = subscriptions[1],
                 SubscriptionStartDate = new DateOnly(2023, 8, 9),
                 SubscriptionEndDate = new DateOnly(2023, 11, 7),
-                Books = new List<Book> { book2 },
+                UserBooks = new List<UserHasBooks>
+                {
+                    new UserHasBooks
+                    {
+                        Book = book2,
+                        BorrowedDate = DateTime.Now,
+                        DueDate = DateTime.Now.AddDays(14)
+                    }
+                },
                 TimeStamp = DateTime.Now,
             };
 

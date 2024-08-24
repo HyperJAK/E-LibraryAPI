@@ -31,7 +31,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
             _logger.LogInformation($"Borrowing a {_logName}, Service Layer");
             try
             {
-                var user = await _context.Users.Where(u => u.Id == request.UserId).Include(l => l.Subscription).FirstOrDefaultAsync();
+                var user = await _context.Users.Where(u => u.Id == request.UserId).Include(l => l.Subscription).Include(b => b.UserBooks).ThenInclude(b => b.Book).FirstOrDefaultAsync();
                 var latestBook = await _context.Books.Where(u => u.Id == request.BookId).FirstOrDefaultAsync();
 
                 if (user == null)
@@ -44,17 +44,53 @@ namespace ELib_IDSFintech_Internship.Services.Users
                     _logger.LogInformation($"No Book found");
                     return -2;
                 }
+                if (user.UserBooks.Any(ub => ub.Book.Id == latestBook.Id)) 
+                {
+                    _logger.LogInformation($"User is already borrowing this {_logName}");
+                    return -4;
+                }
                 if (user.Subscription == null)
                 {
                     _logger.LogInformation($"No {_logName} subscription found");
                     return -3;
                 }
 
-                if(latestBook.Type == "Physical")
+                //preparing return date
+                var returnDate = DateTime.Now;
+                switch (user.Subscription.Type)
+                {
+                    case "None":
+                        returnDate = DateTime.Now;
+                        break;
+
+                    case "Basic":
+                        returnDate = DateTime.Now.AddDays(14);
+                        break;
+
+                    case "Advanced":
+                        returnDate = DateTime.Now.AddDays(60);
+                        break;
+
+                    case "Premium":
+                        returnDate = DateTime.MaxValue;
+                        break;
+
+                }
+
+                if (latestBook.Type == "Physical")
                 {
                     if (latestBook.PhysicalBookAvailability == true)
                     {
-                        user.Books.Add(latestBook);
+                        var newBorrow = new UserHasBooks
+                        {
+                            UserId = user.Id,
+                            BookId = latestBook.Id,
+                            BorrowedDate = DateTime.Now,
+                            DueDate = returnDate
+
+                        };
+
+                        user.UserBooks.Add(newBorrow);
 
                         latestBook.PhysicalBookCount--;
 
@@ -69,17 +105,22 @@ namespace ELib_IDSFintech_Internship.Services.Users
                 }
                 else
                 {
-                    user.Books.Add(latestBook);
-                }
+                    var newBorrow = new UserHasBooks
+                    {
+                        UserId = user.Id,
+                        BookId = latestBook.Id,
+                        BorrowedDate = DateTime.Now,
+                        DueDate = returnDate
 
-               
+                    };
+
+                    user.UserBooks.Add(newBorrow);
+                }
+                //clearing cache
+                await ClearCache($"User_{user.Id}");
 
                 //returns how many entries were Created (should be 1)
                 return await _context.SaveChangesAsync();
-
-
-
-
 
             }
             catch (Exception ex)
@@ -89,7 +130,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
             }
         }
 
-        public async Task<int?> Create(User newObject)
+        public async Task<User?> Create(User newObject)
         {
             _logger.LogInformation($"Creating a {_logName}, Service Layer");
             try
@@ -97,7 +138,11 @@ namespace ELib_IDSFintech_Internship.Services.Users
                 _context.Users.Add(newObject);
 
                 //returns how many entries were Created (should be 1)
-                return await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
+
+                var getUpdated = await _context.Users.Where(x => x.Id == newObject.Id).FirstOrDefaultAsync();
+
+                return getUpdated;
             }
             catch (Exception ex)
             {
@@ -119,6 +164,8 @@ namespace ELib_IDSFintech_Internship.Services.Users
                     return null;
                 }
                 _context.Users.Remove(entity);
+
+                await ClearCache($"User_{entity.Id}");
 
                 //returns how many entries were deleted (should be 1 if it found the location that needs deleting)
                 return await _context.SaveChangesAsync();
@@ -149,17 +196,23 @@ namespace ELib_IDSFintech_Internship.Services.Users
 
                     cachedUsers = await _context.Users
                         .Include(u => u.Subscription)
-                        .Include(u => u.Books)
+                        .Include(u => u.UserBooks)
+                        .ThenInclude(b => b.Book)
                         .ThenInclude(b => b.Author)
-                        .Include(u => u.Books)
+                        .Include(u => u.UserBooks)
+                        .ThenInclude(b => b.Book)
                         .ThenInclude(b => b.PhysicalBookLocation)
-                        .Include(u => u.Books)
+                        .Include(u => u.UserBooks)
+                        .ThenInclude(b => b.Book)
                         .ThenInclude(b => b.Formats)
-                        .Include(u => u.Books)
+                        .Include(u => u.UserBooks)
+                        .ThenInclude(b => b.Book)
                         .ThenInclude(b => b.Languages)
-                        .Include(u => u.Books)
+                        .Include(u => u.UserBooks)
+                        .ThenInclude(b => b.Book)
                         .ThenInclude(b => b.Genres)
-                        .Include(u => u.Books)
+                        .Include(u => u.UserBooks)
+                        .ThenInclude(b => b.Book)
                         .ThenInclude(b => b.Tags).ToListAsync();
 
                     //Setting behavior of the cached items after a certain passed time
@@ -199,17 +252,23 @@ namespace ELib_IDSFintech_Internship.Services.Users
 
                      cachedUser = await _context.Users.Where(l => l.Id == id)
                         .Include(u => u.Subscription)
-                        .Include(u => u.Books)
+                        .Include(u => u.UserBooks)
+                        .ThenInclude(b => b.Book)
                         .ThenInclude(b => b.Author)
-                        .Include(u => u.Books)
+                        .Include(u => u.UserBooks)
+                        .ThenInclude(b => b.Book)
                         .ThenInclude(b => b.PhysicalBookLocation)
-                        .Include(u => u.Books)
+                        .Include(u => u.UserBooks)
+                        .ThenInclude(b => b.Book)
                         .ThenInclude(b => b.Formats)
-                        .Include(u => u.Books)
+                        .Include(u => u.UserBooks)
+                        .ThenInclude(b => b.Book)
                         .ThenInclude(b => b.Languages)
-                        .Include(u => u.Books)
+                        .Include(u => u.UserBooks)
+                        .ThenInclude(b => b.Book)
                         .ThenInclude(b => b.Genres)
-                        .Include(u => u.Books)
+                        .Include(u => u.UserBooks)
+                        .ThenInclude(b => b.Book)
                         .ThenInclude(b => b.Tags).FirstOrDefaultAsync();
 
                     //Setting behavior of the cached items after a certain passed time
@@ -238,6 +297,9 @@ namespace ELib_IDSFintech_Internship.Services.Users
             {
                 _context.Entry(modifiedObject).State = EntityState.Modified;
 
+                //clearing cache
+                await ClearCache($"User_{modifiedObject.Id}");
+
                 //returns how many entries were updated (should be 1 if it found the location that needs updating)
                 return await _context.SaveChangesAsync();
             }
@@ -260,6 +322,25 @@ namespace ELib_IDSFintech_Internship.Services.Users
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Failed to verify the {_logName}, in Service Layer");
+                throw ex;
+            }
+        }
+
+        public Task<bool?> ClearCache(string key)
+        {
+            _logger.LogInformation($"Clearing all cached {_logName}s, Service Layer");
+
+            try
+            {
+                _memoryCache.Remove(key);
+
+                _logger.LogInformation($"Cleared all cached {_logName}s");
+
+                return Task.FromResult<bool?>(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to clear the cached {_logName}s, in Service Layer");
                 throw ex;
             }
         }

@@ -80,15 +80,15 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
 
             try
             {
-                var countCreated = await _service.Create(newObject);
+                var user = await _service.Create(newObject);
 
-                if (countCreated == null || countCreated.Value <= 0)
+                if (user == null)
                 {
                     _logger.LogWarning($"No {_logName} Updated");
                     return NotFound();
                 }
 
-                return Ok(countCreated);
+                return Ok(user);
             }
             catch (Exception ex)
             {
@@ -187,6 +187,11 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
                 
                 switch (result)
                 {
+                    //User already borrowing book
+                    case -4:
+                        {
+                            return Ok(new { status = 434, message = "You are already borrowing this book" });
+                        }
                     //subscription needed
                     case -3:
                         {
