@@ -214,7 +214,7 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
                         //acceptable
                         if (result > 0)
                         {
-                            return Ok(new { message = "Book was successfully borrowed" });
+                            return Ok(new { status = 200, message = "Book was successfully borrowed" });
                         }
                         else
                         {
