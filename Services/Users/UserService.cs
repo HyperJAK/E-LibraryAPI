@@ -26,25 +26,25 @@ namespace ELib_IDSFintech_Internship.Services.Users
         }
 
         //need to add more checks later for user and session ID
-        public async Task<int?> BorrowBook(int userId, Book entity)
+        public async Task<int?> BorrowBook(BorrowBookRequest request)
         {
             _logger.LogInformation($"Borrowing a {_logName}, Service Layer");
             try
             {
-                var user = await _context.Users.Where(u => u.Id == userId).Include(l => l.Subscription).FirstOrDefaultAsync();
-                var latestBook = await _context.Books.Where(u => u.Id == entity.Id).FirstOrDefaultAsync();
+                var user = await _context.Users.Where(u => u.Id == request.UserId).Include(l => l.Subscription).FirstOrDefaultAsync();
+                var latestBook = await _context.Books.Where(u => u.Id == request.BookId).FirstOrDefaultAsync();
 
                 if (user == null)
                 {
                     _logger.LogInformation($"No {_logName} found");
                     return -1;
                 }
-                if (user == null)
+                if (latestBook == null)
                 {
                     _logger.LogInformation($"No Book found");
                     return -2;
                 }
-                if (user.Subscription != null)
+                if (user.Subscription == null)
                 {
                     _logger.LogInformation($"No {_logName} subscription found");
                     return -3;

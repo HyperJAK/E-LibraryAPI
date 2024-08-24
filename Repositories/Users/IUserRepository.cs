@@ -9,6 +9,6 @@ namespace ELib_IDSFintech_Internship.Repositories.Users
         public Task<User?> VerifyUser(VerificationRequest verificationObject);
 
         //this lets user borrow a book
-        public Task<int?> BorrowBook(int userId, Book entity);
+        public Task<int?> BorrowBook(BorrowBookRequest request);
     }
 }

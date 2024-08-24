@@ -177,39 +177,39 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
 
         //prefferably replace userId with session id or with an object that takes both
         [HttpPost("api/borrowBook")]
-        public async Task<IActionResult> BorrowBook(int userId, Book book)
+        public async Task<IActionResult> BorrowBook(BorrowBookRequest request)
         {
             _logger.LogInformation($"Creating a {_logName}, Controller Layer");
 
             try
             {
-                var result = await _service.BorrowBook(userId, book);
+                var result = await _service.BorrowBook(request);
                 
                 switch (result)
                 {
                     //subscription needed
                     case -3:
                         {
-                            return StatusCode(433, "subscription needed");
+                            return Ok(new { status = 433, message = "Subscription needed" });
                         }
 
                     //no book found
                     case -2:
                         {
-                            return StatusCode(432, "no book found");
+                            return Ok(new { status = 432, message = "Error, No such book was found" });
                         }
                         
                         // no user found
                     case -1:
                         {
-                            return StatusCode(431, "no user found");
+                            return Ok(new { status = 431, message = "User was not found, please login" });
                         }
 
                     default:
                         //acceptable
                         if (result > 0)
                         {
-                            return Ok(result);
+                            return Ok(new { message = "Book was successfully borrowed" });
                         }
                         else
                         {
