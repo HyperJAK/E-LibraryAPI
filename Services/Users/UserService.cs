@@ -2,6 +2,7 @@
 using ELib_IDSFintech_Internship.Models.Users;
 using ELib_IDSFintech_Internship.Repositories.Users;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace ELib_IDSFintech_Internship.Services.Users
 {
@@ -10,16 +11,18 @@ namespace ELib_IDSFintech_Internship.Services.Users
 
         private readonly Data.ELibContext _context;
         private readonly ILogger<UserService> _logger;
+        private readonly IMemoryCache _memoryCache;
 
         //conveniently used when was copy pasting from another controller to this, and left behind.
         private readonly string _logName = "User";
 
 
 
-        public UserService(Data.ELibContext context, ILogger<UserService> logger)
+        public UserService(Data.ELibContext context, ILogger<UserService> logger, IMemoryCache memoryCache)
         {
             _context = context;
             _logger = logger;
+            _memoryCache = memoryCache;
         }
 
         //need to add more checks later for user and session ID
@@ -130,9 +133,45 @@ namespace ELib_IDSFintech_Internship.Services.Users
         public async Task<IEnumerable<User>?> GetAll()
         {
             _logger.LogInformation($"Getting all {_logName}s information, Service Layer");
+
+            var cacheKey = $"User_all";
+
             try
             {
-                return await _context.Users.ToListAsync();
+                if (_memoryCache.TryGetValue(cacheKey, out IEnumerable<User>? cachedUsers))
+                {
+                    _logger.LogInformation($"{_logName}s retrieved from cache");
+                    return cachedUsers;
+                }
+                else
+                {
+                    _logger.LogInformation($"{_logName}s not found in cache");
+
+                    cachedUsers = await _context.Users
+                        .Include(u => u.Subscription)
+                        .Include(u => u.Books)
+                        .ThenInclude(b => b.Author)
+                        .Include(u => u.Books)
+                        .ThenInclude(b => b.PhysicalBookLocation)
+                        .Include(u => u.Books)
+                        .ThenInclude(b => b.Formats)
+                        .Include(u => u.Books)
+                        .ThenInclude(b => b.Languages)
+                        .Include(u => u.Books)
+                        .ThenInclude(b => b.Genres)
+                        .Include(u => u.Books)
+                        .ThenInclude(b => b.Tags).ToListAsync();
+
+                    //Setting behavior of the cached items after a certain passed time
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(30))
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(5))
+                    .SetPriority(CacheItemPriority.Normal);
+
+                    _memoryCache.Set(cacheKey, cachedUsers, cacheEntryOptions);
+                }
+
+                return cachedUsers;
             }
             catch (Exception ex)
             {
@@ -144,9 +183,46 @@ namespace ELib_IDSFintech_Internship.Services.Users
         public async Task<User?> GetById(int id)
         {
             _logger.LogInformation($"Getting a single {_logName} using his ID: {id}, Service Layer");
+
+            var cacheKey = $"User_${id}";
+
             try
             {
-                return await _context.Users.Where(l => l.Id == id).FirstOrDefaultAsync();
+                if (_memoryCache.TryGetValue(cacheKey, out User? cachedUser))
+                {
+                    _logger.LogInformation($"{_logName} retrieved from cache");
+                    return cachedUser;
+                }
+                else
+                {
+                    _logger.LogInformation($"{_logName}s not found in cache");
+
+                     cachedUser = await _context.Users.Where(l => l.Id == id)
+                        .Include(u => u.Subscription)
+                        .Include(u => u.Books)
+                        .ThenInclude(b => b.Author)
+                        .Include(u => u.Books)
+                        .ThenInclude(b => b.PhysicalBookLocation)
+                        .Include(u => u.Books)
+                        .ThenInclude(b => b.Formats)
+                        .Include(u => u.Books)
+                        .ThenInclude(b => b.Languages)
+                        .Include(u => u.Books)
+                        .ThenInclude(b => b.Genres)
+                        .Include(u => u.Books)
+                        .ThenInclude(b => b.Tags).FirstOrDefaultAsync();
+
+                    //Setting behavior of the cached items after a certain passed time
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(30))
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(5))
+                    .SetPriority(CacheItemPriority.Normal);
+
+                    _memoryCache.Set(cacheKey, cachedUser, cacheEntryOptions);
+
+                    return cachedUser;
+                }
+ 
             }
             catch (Exception ex)
             {

@@ -39,5 +39,6 @@ namespace ELib_IDSFintech_Internship.Models.Users
         public DateOnly? SubscriptionEndDate { get; set; }
 
         public required DateTime TimeStamp { get; set; }
+
     }
 }
