@@ -1,5 +1,6 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
 using ELib_IDSFintech_Internship.Models.Users;
+using ELib_IDSFintech_Internship.Repositories;
 using ELib_IDSFintech_Internship.Repositories.Users;
 using ELib_IDSFintech_Internship.Services.Books;
 using ELib_IDSFintech_Internship.Services.Enums;
@@ -177,7 +178,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
                 var getUpdated = await _context.Users.Where(x => x.Id == newObject.Id).FirstOrDefaultAsync();
 
                 //Here we generate session ID
-                var sessionId = _sessionManager.GenerateSessionId();
+                var sessionId = await _sessionManager.GenerateSessionId(getUpdated.Id);
 
                 return (getUpdated, sessionId);
             }
@@ -383,8 +384,11 @@ namespace ELib_IDSFintech_Internship.Services.Users
                 verificationObject.Password = _securityAES.Encrypt(verificationObject.Password);
                 var user = await _context.Users.Where(l => (l.Email == verificationObject.Email && l.Password == verificationObject.Password)).FirstOrDefaultAsync();
 
+                if (user == null) {
+                    return (null, null);
+                }
                 //Here we generate session ID
-                var sessionId = _sessionManager.GenerateSessionId();
+                var sessionId = await _sessionManager.GenerateSessionId(user.Id);
 
                 return (user, sessionId);
             }
@@ -461,5 +465,9 @@ namespace ELib_IDSFintech_Internship.Services.Users
             }
         }
 
+        Task<User?> IDefaultRepository<User>.Create(User newObject)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -4,6 +4,7 @@ using ELib_IDSFintech_Internship.Services.Enums;
 using ELib_IDSFintech_Internship.Services.Tools;
 using ELib_IDSFintech_Internship.Services.Users;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
 
 namespace ELib_IDSFintech_Internship.Controllers.Users
 {
@@ -59,7 +60,7 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
             {
                 var (user, sessionId) = await _service.VerifyUser(verificationObject);
 
-                if (user == null)
+                if (user == null || sessionId == null)
                 {
                     _logger.LogWarning($"No {_logName} to verify");
                     return NotFound();
@@ -86,15 +87,15 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
             {
                 var (user, sessionId) = await _service.Create(newObject);
 
-                if (user == null)
+                if (user == null || sessionId == null)
                 {
                     _logger.LogWarning($"No {_logName} Updated");
                     return NotFound();
                 }
 
-                Response.Headers["X-Session-ID"] = sessionId;
+                Response.Headers.Append("x-session-id", sessionId);
 
-                return Ok(user);
+                return Ok(new { userData = user, status = ResponseType.ResponseSuccess, message = "User created successfully" });
             }
             catch (Exception ex)
             {
@@ -288,27 +289,6 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"An error occurred while adding a subscription for a {_logName}");
-                return StatusCode(500, "Internal server error");
-            }
-
-        }
-
-        //prefferably replace userId with session id or with an object that takes both
-        [HttpPost("api/logOut")]
-        public async Task<IActionResult> LogOut(LogOutRequest request)
-        {
-            _logger.LogInformation($"Logging {_logName} out, Controller Layer");
-
-            try
-            {
-               
-
-               
-
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"An error occurred while adding book to a {_logName}");
                 return StatusCode(500, "Internal server error");
             }
 

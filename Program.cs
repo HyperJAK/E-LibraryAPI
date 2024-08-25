@@ -45,10 +45,11 @@ namespace ELib_IDSFintech_Internship
             builder.Services.AddScoped<SubscriptionService>();
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<BookFormatService>();
-            builder.Services.AddScoped<LanguageService>(); 
+            builder.Services.AddScoped<LanguageService>();
+            builder.Services.AddScoped<SessionManagementService>();
 
             builder.Services.AddSingleton<AES256Encryption>();
-            builder.Services.AddSingleton<SessionManagementService>();
+            
 
             var app = builder.Build();
 
@@ -72,7 +73,8 @@ namespace ELib_IDSFintech_Internship
             app.UseCors(options => options
             .WithOrigins("http://localhost:3000", "http://localhost:3001")
             .AllowAnyMethod()
-            .AllowAnyHeader());
+            .AllowAnyHeader()
+            .WithExposedHeaders("x-session-id"));
 
             // Default message to show on default / page
             app.MapGet("/", () => @"Tasks management API. Navigate to /swagger to open the Swagger test UI.");
