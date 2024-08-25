@@ -7,7 +7,8 @@
         SubscriptionNeeded = (int)433,
         UserAlreadyBorrow = (int)434,
         ResponseSuccess = (int)200,
-        UserAlreadySubscribed = (int)435
+        UserAlreadySubscribed = (int)435,
+        OutOfBook = (int)436
 
     }
 }

@@ -48,6 +48,19 @@ namespace ELib_IDSFintech_Internship.Services.Users
                     _logger.LogInformation($"No Book found");
                     return ResponseType.NoObjectFound;
                 }
+                else
+                {
+                    _logger.LogInformation($"Testing to see if we have enough books");
+                    if(latestBook.PhysicalBookAvailability == false)
+                    {
+                        _logger.LogInformation($"Not enough books");
+                        return ResponseType.OutOfBook;
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"We have enough of this book");
+                    }
+                }
                 if (user.UserBooks.Any(ub => ub.Book.Id == latestBook.Id)) 
                 {
                     _logger.LogInformation($"User is already borrowing this {_logName}");
@@ -83,29 +96,26 @@ namespace ELib_IDSFintech_Internship.Services.Users
 
                 if (latestBook.Type == "Physical")
                 {
-                    if (latestBook.PhysicalBookAvailability == true)
+                    var newBorrow = new UserHasBooks
                     {
-                        var newBorrow = new UserHasBooks
-                        {
-                            UserId = user.Id,
-                            BookId = latestBook.Id,
-                            BorrowedDate = DateTime.Now,
-                            DueDate = returnDate
+                        UserId = user.Id,
+                        BookId = latestBook.Id,
+                        BorrowedDate = DateTime.Now,
+                        DueDate = returnDate
 
-                        };
+                    };
 
-                        user.UserBooks.Add(newBorrow);
+                    user.UserBooks.Add(newBorrow);
 
-                        latestBook.PhysicalBookCount--;
+                    latestBook.PhysicalBookCount--;
 
-                        if(latestBook.PhysicalBookCount == 0)
-                        {
-                            latestBook.PhysicalBookAvailability = false;
-                        }
-
-                        _context.Entry(latestBook).State = EntityState.Modified;
-
+                    if(latestBook.PhysicalBookCount == 0)
+                    {
+                        latestBook.PhysicalBookAvailability = false;
                     }
+
+                    _context.Entry(latestBook).State = EntityState.Modified;
+
                 }
                 else
                 {
@@ -357,6 +367,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
             _logger.LogInformation($"verifying a {_logName}, Service Layer");
             try
             {
+                verificationObject.Password = _securityAES.Encrypt(verificationObject.Password);
                 var user = await _context.Users.Where(l => (l.Email == verificationObject.Email && l.Password == verificationObject.Password)).FirstOrDefaultAsync();
 
                 return user;

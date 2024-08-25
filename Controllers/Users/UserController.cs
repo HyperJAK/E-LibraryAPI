@@ -190,6 +190,11 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
                 
                 switch ((ResponseType)result)
                 {
+                    //Book out of stock
+                    case ResponseType.OutOfBook:
+                        {
+                            return Ok(new { status = ResponseType.OutOfBook, message = "Book out of stock" });
+                        }
                     //User already borrowing book
                     case ResponseType.UserAlreadyBorrow:
                         {
