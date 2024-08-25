@@ -1,8 +1,9 @@
-﻿using System.Security.Cryptography;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 
-namespace ELib_IDSFintech_Internship.Services.Enums
+namespace ELib_IDSFintech_Internship.Services.Tools
 {
-    public class SessionManagement
+    public class SessionManagementService
     {
         private static readonly RandomNumberGenerator _rng = RandomNumberGenerator.Create();
 
@@ -17,7 +18,6 @@ namespace ELib_IDSFintech_Internship.Services.Enums
         {
             return string.Equals(sessionId1, sessionId2, StringComparison.OrdinalIgnoreCase);
         }
-
 
     }
 }

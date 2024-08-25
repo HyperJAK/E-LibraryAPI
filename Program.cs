@@ -2,7 +2,6 @@
 using ELib_IDSFintech_Internship.Data;
 using ELib_IDSFintech_Internship.Services.Books;
 using ELib_IDSFintech_Internship.Services.Common;
-using ELib_IDSFintech_Internship.Services.Enums;
 using ELib_IDSFintech_Internship.Services.Tools;
 using ELib_IDSFintech_Internship.Services.Users;
 using Microsoft.EntityFrameworkCore;
@@ -49,7 +48,7 @@ namespace ELib_IDSFintech_Internship
             builder.Services.AddScoped<LanguageService>(); 
 
             builder.Services.AddSingleton<AES256Encryption>();
-            builder.Services.AddSingleton<SessionManagement>();
+            builder.Services.AddSingleton<SessionManagementService>();
 
             var app = builder.Build();
 

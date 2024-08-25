@@ -5,6 +5,7 @@ using ELib_IDSFintech_Internship.Services.Books;
 using ELib_IDSFintech_Internship.Services.Enums;
 using ELib_IDSFintech_Internship.Services.Tools;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace ELib_IDSFintech_Internship.Services.Users
@@ -16,22 +17,22 @@ namespace ELib_IDSFintech_Internship.Services.Users
         private readonly ILogger<UserService> _logger;
         private readonly IMemoryCache _memoryCache;
         private readonly AES256Encryption _securityAES;
-        private readonly SessionManagement _sessionManager;
         private readonly BookService _bookService;
+        private readonly SessionManagementService _sessionManager;
 
         //conveniently used when was copy pasting from another controller to this, and left behind.
         private readonly string _logName = "User";
 
 
 
-        public UserService(Data.ELibContext context, ILogger<UserService> logger, IMemoryCache memoryCache, AES256Encryption securityAES, SessionManagement sessionManager, BookService bookService)
+        public UserService(Data.ELibContext context, ILogger<UserService> logger, IMemoryCache memoryCache, AES256Encryption securityAES, BookService bookService, SessionManagementService sessionManager)
         {
             _context = context;
             _logger = logger;
             _memoryCache = memoryCache;
             _securityAES = securityAES;
-            _sessionManager = sessionManager;
             _bookService = bookService;
+            _sessionManager = sessionManager;
         }
 
         //need to add more checks later for user and session ID
@@ -160,7 +161,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
             }
         }
 
-        public async Task<User?> Create(User newObject)
+        public async Task<(User?, string)> Create(User newObject)
         {
             _logger.LogInformation($"Creating a {_logName}, Service Layer");
             try
@@ -175,7 +176,10 @@ namespace ELib_IDSFintech_Internship.Services.Users
 
                 var getUpdated = await _context.Users.Where(x => x.Id == newObject.Id).FirstOrDefaultAsync();
 
-                return getUpdated;
+                //Here we generate session ID
+                var sessionId = _sessionManager.GenerateSessionId();
+
+                return (getUpdated, sessionId);
             }
             catch (Exception ex)
             {
@@ -371,7 +375,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
             }
         }
 
-        public async Task<User?> VerifyUser(VerificationRequest verificationObject)
+        public async Task<(User?, string)> VerifyUser(VerificationRequest verificationObject)
         {
             _logger.LogInformation($"verifying a {_logName}, Service Layer");
             try
@@ -379,7 +383,10 @@ namespace ELib_IDSFintech_Internship.Services.Users
                 verificationObject.Password = _securityAES.Encrypt(verificationObject.Password);
                 var user = await _context.Users.Where(l => (l.Email == verificationObject.Email && l.Password == verificationObject.Password)).FirstOrDefaultAsync();
 
-                return user;
+                //Here we generate session ID
+                var sessionId = _sessionManager.GenerateSessionId();
+
+                return (user, sessionId);
             }
             catch (Exception ex)
             {
@@ -453,5 +460,6 @@ namespace ELib_IDSFintech_Internship.Services.Users
                 throw ex;
             }
         }
+
     }
 }

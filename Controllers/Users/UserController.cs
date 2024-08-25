@@ -1,6 +1,7 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
 using ELib_IDSFintech_Internship.Models.Users;
 using ELib_IDSFintech_Internship.Services.Enums;
+using ELib_IDSFintech_Internship.Services.Tools;
 using ELib_IDSFintech_Internship.Services.Users;
 using Microsoft.AspNetCore.Mvc;
 
@@ -56,13 +57,15 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
 
             try
             {
-                var user = await _service.VerifyUser(verificationObject);
+                var (user, sessionId) = await _service.VerifyUser(verificationObject);
 
                 if (user == null)
                 {
                     _logger.LogWarning($"No {_logName} to verify");
                     return NotFound();
                 }
+
+                Response.Headers["x-session-id"] = sessionId;
 
                 return Ok(user);
             }
@@ -81,13 +84,15 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
 
             try
             {
-                var user = await _service.Create(newObject);
+                var (user, sessionId) = await _service.Create(newObject);
 
                 if (user == null)
                 {
                     _logger.LogWarning($"No {_logName} Updated");
                     return NotFound();
                 }
+
+                Response.Headers["X-Session-ID"] = sessionId;
 
                 return Ok(user);
             }
@@ -283,6 +288,27 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"An error occurred while adding a subscription for a {_logName}");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
+        //prefferably replace userId with session id or with an object that takes both
+        [HttpPost("api/logOut")]
+        public async Task<IActionResult> LogOut(LogOutRequest request)
+        {
+            _logger.LogInformation($"Logging {_logName} out, Controller Layer");
+
+            try
+            {
+               
+
+               
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while adding book to a {_logName}");
                 return StatusCode(500, "Internal server error");
             }
 
