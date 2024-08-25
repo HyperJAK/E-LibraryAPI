@@ -252,5 +252,30 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
 
         }
 
+        [HttpGet("api/borrowedBooks/{userId}")]
+        public async Task<IActionResult> GetBorrowedBooks(int userId)
+        {
+            _logger.LogInformation($"Getting all {_logName}s borrowed by user with ID: {userId}, Controller Layer");
+
+            try
+            {
+                var result = await _service.GetBorrowedBooks(userId);
+
+                if (result == null)
+                {
+                    _logger.LogWarning($"No {_logName}s found");
+                    return NotFound();
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while getting all {_logName}s");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
     }
 }

@@ -311,5 +311,47 @@ namespace ELib_IDSFintech_Internship.Services.Books
                 throw ex;
             }
         }
+
+        public async Task<IEnumerable<Book>?> GetBorrowedBooks(int userId)
+        {
+            _logger.LogInformation($"Getting {_logName}s borrowed by user with ID: {userId}, Service Layer");
+
+            var cacheKeyNew = $"BorrowedBy_{userId}";
+
+            try
+            {
+                //if all books are cached we enter
+                if (_memoryCache.TryGetValue(cacheKeyNew, out IEnumerable<Book>? cachedBorrowedBooks))
+                {
+                    //we try to get the specific book from the cache
+                    _logger.LogInformation($"{_logName}s retrieved from cache");
+                    return cachedBorrowedBooks;
+                }
+                else
+                {
+                    //if there is no cache then we call database
+                    _logger.LogInformation($"{_logName}s not found in cache");
+
+                    var search = await _context.Books.Where(book => book.UserBooks.Any(uBook => uBook.UserId == userId)).ToListAsync();
+
+                    //Setting behavior of the cached items after a certain passed time
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(30))
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(5))
+                    .SetPriority(CacheItemPriority.Normal);
+
+                    _memoryCache.Set(cacheKeyNew, search, cacheEntryOptions);
+
+                    return search;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while getting {_logName}s borrowed by user with ID: {userId}, in Services Layer");
+                throw ex;
+            }
+        }
     }
 }
