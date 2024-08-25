@@ -187,7 +187,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
             {
                 _memoryCache.Remove(key);
 
-                _logger.LogInformation($"Cleared all cached {_logName}s");
+                _logger.LogInformation($"Cleared all cached {_logName}s, specifically: {key}");
 
                 return Task.FromResult<bool?>(true);
             }

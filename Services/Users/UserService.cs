@@ -1,6 +1,7 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
 using ELib_IDSFintech_Internship.Models.Users;
 using ELib_IDSFintech_Internship.Repositories.Users;
+using ELib_IDSFintech_Internship.Services.Books;
 using ELib_IDSFintech_Internship.Services.Enums;
 using ELib_IDSFintech_Internship.Services.Tools;
 using Microsoft.EntityFrameworkCore;
@@ -15,18 +16,22 @@ namespace ELib_IDSFintech_Internship.Services.Users
         private readonly ILogger<UserService> _logger;
         private readonly IMemoryCache _memoryCache;
         private readonly AES256Encryption _securityAES;
+        private readonly SessionManagement _sessionManager;
+        private readonly BookService _bookService;
 
         //conveniently used when was copy pasting from another controller to this, and left behind.
         private readonly string _logName = "User";
 
 
 
-        public UserService(Data.ELibContext context, ILogger<UserService> logger, IMemoryCache memoryCache, AES256Encryption securityAES)
+        public UserService(Data.ELibContext context, ILogger<UserService> logger, IMemoryCache memoryCache, AES256Encryption securityAES, SessionManagement sessionManager, BookService bookService)
         {
             _context = context;
             _logger = logger;
             _memoryCache = memoryCache;
             _securityAES = securityAES;
+            _sessionManager = sessionManager;
+            _bookService = bookService;
         }
 
         //need to add more checks later for user and session ID
@@ -116,6 +121,9 @@ namespace ELib_IDSFintech_Internship.Services.Users
 
                     _context.Entry(latestBook).State = EntityState.Modified;
 
+                    //we also need to clear the cache of the book because we updated its availability / quantity
+                    await _bookService.ClearCache($"Book_{request.BookId}");
+
                 }
                 else
                 {
@@ -132,6 +140,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
                 }
                 //clearing cache
                 await ClearCache($"User_{user.Id}");
+
 
                 //returns how many entries were Created (should be 1)
                 var count = await _context.SaveChangesAsync();
