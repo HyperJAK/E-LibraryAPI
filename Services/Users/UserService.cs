@@ -56,7 +56,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
                 else
                 {
                     _logger.LogInformation($"Testing to see if we have enough books");
-                    if(latestBook.PhysicalBookAvailability == false)
+                    if(latestBook.PhysicalBookAvailability == false && latestBook.Type == "Physical")
                     {
                         _logger.LogInformation($"Not enough books");
                         return ResponseType.OutOfBook;
