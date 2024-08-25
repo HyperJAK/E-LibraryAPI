@@ -375,5 +375,52 @@ namespace ELib_IDSFintech_Internship.Services.Users
                 throw ex;
             }
         }
+
+        public async Task<ResponseType?> AddSubscription(AddSubscriptionRequest request)
+        {
+            _logger.LogInformation($"Assigning a subscription for a {_logName}, Service Layer");
+            try
+            {
+                var user = await _context.Users.Where(u => u.Id == request.UserId).Include(l => l.Subscription).FirstOrDefaultAsync();
+                var latestSubscription = await _context.Subscriptions.Where(u => u.Id == request.SubscriptionId).FirstOrDefaultAsync();
+
+                if (user == null)
+                {
+                    _logger.LogInformation($"No {_logName} found");
+                    return ResponseType.UserNotLoggedIn;
+                }
+                if (latestSubscription == null)
+                {
+                    _logger.LogInformation($"No Subscription found");
+                    return ResponseType.NoObjectFound;
+                }
+                if (user.Subscription?.Id == latestSubscription.Id)
+                {
+                    _logger.LogInformation($"User is already borrowing this {_logName}");
+                    return ResponseType.UserAlreadySubscribed;
+                }
+
+                user.Subscription = latestSubscription;
+
+                //returns how many entries were Created (should be 1)
+                var count = await _context.SaveChangesAsync();
+
+                //clearing cache
+                await ClearCache($"User_{user.Id}");
+
+                if (count > 0)
+                {
+                    return ResponseType.ResponseSuccess;
+                }
+
+                return null;
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to subscribe the {_logName} to the subscription with id: {request.SubscriptionId}, in Service Layer");
+                throw ex;
+            }
+        }
     }
 }

@@ -182,7 +182,7 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
         [HttpPost("api/borrowBook")]
         public async Task<IActionResult> BorrowBook(BorrowBookRequest request)
         {
-            _logger.LogInformation($"Creating a {_logName}, Controller Layer");
+            _logger.LogInformation($"Adding a book for a {_logName}, Controller Layer");
 
             try
             {
@@ -227,7 +227,57 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"An error occurred while creating {_logName}");
+                _logger.LogError(ex, $"An error occurred while adding book to a {_logName}");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
+        //prefferably replace userId with session id or with an object that takes both
+        [HttpPost("api/addSubscription")]
+        public async Task<IActionResult> AddSubscription(AddSubscriptionRequest request)
+        {
+            _logger.LogInformation($"Adding a subscription for a {_logName}, Controller Layer");
+
+            try
+            {
+                var result = await _service.AddSubscription(request);
+
+                switch ((ResponseType)result)
+                {
+                    //User already subscribed
+                    case ResponseType.UserAlreadySubscribed:
+                        {
+                            return Ok(new { status = ResponseType.UserAlreadySubscribed, message = "You are already subscribed to this subscription" });
+                        }
+
+                    //no subscription found
+                    case ResponseType.NoObjectFound:
+                        {
+                            return Ok(new { status = ResponseType.NoObjectFound, message = "Error, Subscription not found" });
+                        }
+
+                    // no user found
+                    case ResponseType.UserNotLoggedIn:
+                        {
+                            return Ok(new { status = ResponseType.UserNotLoggedIn, message = "User was not found, please login" });
+                        }
+
+                    // Success
+                    case ResponseType.ResponseSuccess:
+                        {
+                            return Ok(new { status = ResponseType.ResponseSuccess, message = "Successfully subscribed" });
+                        }
+
+                    default:
+                        return BadRequest();
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while adding a subscription for a {_logName}");
                 return StatusCode(500, "Internal server error");
             }
 

@@ -14,5 +14,8 @@ namespace ELib_IDSFintech_Internship.Repositories.Users
 
         //this lets user borrow a book
         public Task<ResponseType?> BorrowBook(BorrowBookRequest request);
+
+        //this lets user assign a subscription
+        public Task<ResponseType?> AddSubscription(AddSubscriptionRequest request);
     }
 }
