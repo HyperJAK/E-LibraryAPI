@@ -17,11 +17,11 @@ namespace ELib_IDSFintech_Internship.Models.Users
         [MaxLength(300)]
         public required string BillingAddress { get; set; }
 
-        public required DateOnly ExpirationDate { get; set; }
+        public required DateTime ExpirationDate { get; set; }
 
         public required DateTime TimeStamp { get; set; }
 
         // Navigation property to Book
-        public User User { get; set; }
+        public User? User { get; set; }
     }
 }

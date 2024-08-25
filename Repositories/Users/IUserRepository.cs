@@ -1,5 +1,6 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
 using ELib_IDSFintech_Internship.Models.Users;
+using ELib_IDSFintech_Internship.Services.Enums;
 
 namespace ELib_IDSFintech_Internship.Repositories.Users
 {
@@ -12,6 +13,6 @@ namespace ELib_IDSFintech_Internship.Repositories.Users
         public Task<User?> VerifyUser(VerificationRequest verificationObject);
 
         //this lets user borrow a book
-        public Task<int?> BorrowBook(BorrowBookRequest request);
+        public Task<ResponseType?> BorrowBook(BorrowBookRequest request);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
 using ELib_IDSFintech_Internship.Models.Users;
+using ELib_IDSFintech_Internship.Services.Enums;
 using ELib_IDSFintech_Internship.Services.Users;
 using Microsoft.AspNetCore.Mvc;
 
@@ -133,13 +134,15 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
             {
                 var countUpdated = await _service.Update(modifiedObject);
 
-                if (countUpdated == null || countUpdated.Value <= 0)
+                if (countUpdated > 0)
+                {
+                    return Ok(new { status = 200, message = "user successfully updated" });
+                }
+                else
                 {
                     _logger.LogWarning($"No {_logName} Updated");
-                    return NotFound();
+                    return Ok(new { status = 404, message = "Error, user couldn't be updated" });
                 }
-
-                return Ok(countUpdated);
             }
             catch (Exception ex)
             {
@@ -185,41 +188,39 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
             {
                 var result = await _service.BorrowBook(request);
                 
-                switch (result)
+                switch ((ResponseType)result)
                 {
                     //User already borrowing book
-                    case -4:
+                    case ResponseType.UserAlreadyBorrow:
                         {
-                            return Ok(new { status = 434, message = "You are already borrowing this book" });
+                            return Ok(new { status = ResponseType.UserAlreadyBorrow, message = "You are already borrowing this book" });
                         }
                     //subscription needed
-                    case -3:
+                    case ResponseType.SubscriptionNeeded:
                         {
-                            return Ok(new { status = 433, message = "Subscription needed" });
+                            return Ok(new { status = ResponseType.SubscriptionNeeded, message = "Subscription needed" });
                         }
 
                     //no book found
-                    case -2:
+                    case ResponseType.NoObjectFound:
                         {
-                            return Ok(new { status = 432, message = "Error, No such book was found" });
+                            return Ok(new { status = ResponseType.NoObjectFound, message = "Error, No such book was found" });
                         }
                         
                         // no user found
-                    case -1:
+                    case ResponseType.UserNotLoggedIn:
                         {
-                            return Ok(new { status = 431, message = "User was not found, please login" });
+                            return Ok(new { status = ResponseType.UserNotLoggedIn, message = "User was not found, please login" });
+                        }
+
+                    // Success
+                    case ResponseType.ResponseSuccess:
+                        {
+                            return Ok(new { status = ResponseType.ResponseSuccess, message = "Book was successfully borrowed" });
                         }
 
                     default:
-                        //acceptable
-                        if (result > 0)
-                        {
-                            return Ok(new { status = 200, message = "Book was successfully borrowed" });
-                        }
-                        else
-                        {
-                            return BadRequest();
-                        }
+                        return BadRequest();
 
                 }
 

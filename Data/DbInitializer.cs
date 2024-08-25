@@ -317,7 +317,7 @@ namespace ELib_IDSFintech_Internship.Data
                 FullName = "John Doe",
                 CardNumber = "1234-5678-9012-3456",
                 BillingAddress = "1234 Elm Street, Springfield, USA",
-                ExpirationDate = new DateOnly(2025, 12, 31),
+                ExpirationDate = new DateTime(2025, 12, 31),
                 TimeStamp = DateTime.Now,
             };
 
@@ -326,7 +326,7 @@ namespace ELib_IDSFintech_Internship.Data
                 FullName = "Jane Smith",
                 CardNumber = "9876-5432-1098-7654",
                 BillingAddress = "5678 Oak Avenue, Metropolis, USA",
-                ExpirationDate = new DateOnly(2024, 6, 30),
+                ExpirationDate = new DateTime(2024, 6, 30),
                 TimeStamp = DateTime.Now,
             };
 

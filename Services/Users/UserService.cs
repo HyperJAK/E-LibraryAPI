@@ -1,6 +1,7 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
 using ELib_IDSFintech_Internship.Models.Users;
 using ELib_IDSFintech_Internship.Repositories.Users;
+using ELib_IDSFintech_Internship.Services.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -26,7 +27,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
         }
 
         //need to add more checks later for user and session ID
-        public async Task<int?> BorrowBook(BorrowBookRequest request)
+        public async Task<ResponseType?> BorrowBook(BorrowBookRequest request)
         {
             _logger.LogInformation($"Borrowing a {_logName}, Service Layer");
             try
@@ -37,22 +38,22 @@ namespace ELib_IDSFintech_Internship.Services.Users
                 if (user == null)
                 {
                     _logger.LogInformation($"No {_logName} found");
-                    return -1;
+                    return ResponseType.UserNotLoggedIn;
                 }
                 if (latestBook == null)
                 {
                     _logger.LogInformation($"No Book found");
-                    return -2;
+                    return ResponseType.NoObjectFound;
                 }
                 if (user.UserBooks.Any(ub => ub.Book.Id == latestBook.Id)) 
                 {
                     _logger.LogInformation($"User is already borrowing this {_logName}");
-                    return -4;
+                    return ResponseType.UserAlreadyBorrow;
                 }
                 if (user.Subscription == null)
                 {
                     _logger.LogInformation($"No {_logName} subscription found");
-                    return -3;
+                    return ResponseType.SubscriptionNeeded;
                 }
 
                 //preparing return date
@@ -120,7 +121,14 @@ namespace ELib_IDSFintech_Internship.Services.Users
                 await ClearCache($"User_{user.Id}");
 
                 //returns how many entries were Created (should be 1)
-                return await _context.SaveChangesAsync();
+                var count = await _context.SaveChangesAsync();
+
+                if(count > 0)
+                {
+                    return ResponseType.ResponseSuccess;
+                }
+
+                return null;
 
             }
             catch (Exception ex)
@@ -252,6 +260,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
 
                      cachedUser = await _context.Users.Where(l => l.Id == id)
                         .Include(u => u.Subscription)
+                        .Include(u => u.CreditCard)
                         .Include(u => u.UserBooks)
                         .ThenInclude(b => b.Book)
                         .ThenInclude(b => b.Author)
@@ -295,13 +304,34 @@ namespace ELib_IDSFintech_Internship.Services.Users
             _logger.LogInformation($"Updating a {_logName}, Service Layer");
             try
             {
-                _context.Entry(modifiedObject).State = EntityState.Modified;
-
                 //clearing cache
                 await ClearCache($"User_{modifiedObject.Id}");
 
-                //returns how many entries were updated (should be 1 if it found the location that needs updating)
-                return await _context.SaveChangesAsync();
+                _context.Entry(modifiedObject).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                //we initiale / create a new database credit card and add it to this user
+                if (modifiedObject.CreditCard.Id == null || modifiedObject.CreditCard.Id == 0)
+                {
+                    _logger.LogInformation($"Creating a new creditCard in table and linking it to current user, Service Layer");
+                    _context.CreditCards.Add(modifiedObject.CreditCard);
+                    await _context.SaveChangesAsync();
+
+                    var user = await _context.Users.Where(l => l.Id == modifiedObject.Id).FirstOrDefaultAsync();
+                    var newlyCreatedCreditCard = await _context.CreditCards.Where(l => l.Id == modifiedObject.CreditCard.Id).FirstOrDefaultAsync();
+
+                    user.CreditCard = newlyCreatedCreditCard;
+                    return await _context.SaveChangesAsync();
+
+                }
+                else
+                {
+                    _logger.LogInformation($"Updating already existing user creditCard, Service Layer");
+                    _context.Entry(modifiedObject.CreditCard).State = EntityState.Modified;
+                    return await _context.SaveChangesAsync();
+                }
+
+
             }
             catch (Exception ex)
             {
