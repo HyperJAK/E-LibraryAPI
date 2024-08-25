@@ -2,6 +2,7 @@
 using ELib_IDSFintech_Internship.Models.Users;
 using ELib_IDSFintech_Internship.Repositories.Users;
 using ELib_IDSFintech_Internship.Services.Enums;
+using ELib_IDSFintech_Internship.Services.Tools;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -13,17 +14,19 @@ namespace ELib_IDSFintech_Internship.Services.Users
         private readonly Data.ELibContext _context;
         private readonly ILogger<UserService> _logger;
         private readonly IMemoryCache _memoryCache;
+        private readonly AES256Encryption _securityAES;
 
         //conveniently used when was copy pasting from another controller to this, and left behind.
         private readonly string _logName = "User";
 
 
 
-        public UserService(Data.ELibContext context, ILogger<UserService> logger, IMemoryCache memoryCache)
+        public UserService(Data.ELibContext context, ILogger<UserService> logger, IMemoryCache memoryCache, AES256Encryption securityAES)
         {
             _context = context;
             _logger = logger;
             _memoryCache = memoryCache;
+            _securityAES = securityAES;
         }
 
         //need to add more checks later for user and session ID
@@ -143,6 +146,9 @@ namespace ELib_IDSFintech_Internship.Services.Users
             _logger.LogInformation($"Creating a {_logName}, Service Layer");
             try
             {
+                //first we encrypt the hash password
+                newObject.Password = _securityAES.Encrypt(newObject.Password);
+
                 _context.Users.Add(newObject);
 
                 //returns how many entries were Created (should be 1)
@@ -223,6 +229,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
                         .ThenInclude(b => b.Book)
                         .ThenInclude(b => b.Tags).ToListAsync();
 
+
                     //Setting behavior of the cached items after a certain passed time
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
                     .SetSlidingExpiration(TimeSpan.FromSeconds(30))
@@ -280,6 +287,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
                         .ThenInclude(b => b.Book)
                         .ThenInclude(b => b.Tags).FirstOrDefaultAsync();
 
+
                     //Setting behavior of the cached items after a certain passed time
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
                     .SetSlidingExpiration(TimeSpan.FromSeconds(30))
@@ -306,6 +314,9 @@ namespace ELib_IDSFintech_Internship.Services.Users
             {
                 //clearing cache
                 await ClearCache($"User_{modifiedObject.Id}");
+
+                //first we encrypt the hash password
+                modifiedObject.Password = _securityAES.Encrypt(modifiedObject.Password);
 
                 _context.Entry(modifiedObject).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
