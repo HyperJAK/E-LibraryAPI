@@ -21,6 +21,9 @@ namespace ELib_IDSFintech_Internship.Models.Users
         [MaxLength(30)]
         public string? PhoneNumber { get; set; }
 
+        [MaxLength(100)]
+        public string? AboutMe { get; set; } = "";
+
         public int? CreditCardId { get; set; }
 
         [ForeignKey("CreditCardId")]

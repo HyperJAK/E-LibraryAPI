@@ -321,7 +321,8 @@ namespace ELib_IDSFintech_Internship.Services.Users
                     var newlyCreatedCreditCard = await _context.CreditCards.Where(l => l.Id == modifiedObject.CreditCard.Id).FirstOrDefaultAsync();
 
                     user.CreditCard = newlyCreatedCreditCard;
-                    return await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();
+                    return (int)ResponseType.ResponseSuccess;
 
                 }
                 else
