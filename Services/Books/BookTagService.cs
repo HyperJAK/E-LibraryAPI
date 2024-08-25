@@ -14,10 +14,6 @@ namespace ELib_IDSFintech_Internship.Services.Books
         //conveniently used when was copy pasting from another controller to this, and left behind.
         private readonly string _logName = "BookTag";
 
-        private readonly string cacheKey = "tagsCaching";
-        private IEnumerable<BookTag>? cachedTags;
-
-
 
         public BookTagService(Data.ELibContext context, ILogger<BookTagService> logger, IMemoryCache memoryCache)
         {
@@ -50,6 +46,9 @@ namespace ELib_IDSFintech_Internship.Services.Books
         public async Task<int?> Delete(int id)
         {
             _logger.LogInformation($"Deleting a {_logName}, Service Layer");
+
+            var cacheKey = $"Tag{id}";
+
             try
             {
                 var entity = await _context.Tags.Where(x => x.Id == id).FirstOrDefaultAsync();
@@ -65,7 +64,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
                 var affectedItems = await _context.SaveChangesAsync();
 
                 //neccessairy to clear the cache after a delete
-                await ClearCache();
+                await ClearCache(cacheKey);
 
                 return affectedItems;
             }
@@ -79,12 +78,16 @@ namespace ELib_IDSFintech_Internship.Services.Books
         public async Task<IEnumerable<BookTag>?> GetAll()
         {
             _logger.LogInformation($"Getting all {_logName}s information, Service Layer");
+
+            var cacheKey = "tagsCaching";
+
             try
             {
 
-                if (_memoryCache.TryGetValue(cacheKey, out cachedTags))
+                if (_memoryCache.TryGetValue(cacheKey, out IEnumerable<BookTag>? cachedTags))
                 {
                     _logger.LogInformation($"{_logName}s retrieved from cache");
+                    return cachedTags;
                 }
                 else
                 {
@@ -94,14 +97,14 @@ namespace ELib_IDSFintech_Internship.Services.Books
 
                     //Setting behavior of the cached items after a certain passed time
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
-                        .SetSlidingExpiration(TimeSpan.FromSeconds(45))
-                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
-                        .SetPriority(CacheItemPriority.Normal);
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(30))
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(5))
+                    .SetPriority(CacheItemPriority.Normal);
 
                     _memoryCache.Set(cacheKey, cachedTags, cacheEntryOptions);
-                }
 
-                return cachedTags;
+                    return cachedTags;
+                }
             }
             catch (Exception ex)
             {
@@ -113,22 +116,33 @@ namespace ELib_IDSFintech_Internship.Services.Books
         public async Task<BookTag?> GetById(int id)
         {
             _logger.LogInformation($"Getting a single {_logName} using his ID: {id}, Service Layer");
+
+            var cacheKey = $"Tag{id}";
+
             try
             {
                 //if all books are cached we enter
-                if (_memoryCache.TryGetValue(cacheKey, out cachedTags))
+                if (_memoryCache.TryGetValue(cacheKey, out BookTag? cachedTag))
                 {
                     //we try to get the specific book from the cache
                     _logger.LogInformation($"{_logName}s retrieved from cache");
-                    return cachedTags?.Where(l => l.Id == id).FirstOrDefault();
+                    return cachedTag;
                 }
                 else
                 {
                     //if there is no cache then we call database
                     _logger.LogInformation($"{_logName}s not found in cache");
+                    var result = await _context.Tags.Where(l => l.Id == id).FirstOrDefaultAsync();
 
-                    cachedTags = await _context.Tags.ToListAsync();
-                    return await _context.Tags.Where(l => l.Id == id).FirstOrDefaultAsync();
+                    //Setting behavior of the cached items after a certain passed time
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(30))
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(5))
+                    .SetPriority(CacheItemPriority.Normal);
+
+                    _memoryCache.Set(cacheKey, result, cacheEntryOptions);
+
+                    return result;
 
                 }
 
@@ -143,6 +157,9 @@ namespace ELib_IDSFintech_Internship.Services.Books
         public async Task<int?> Update(BookTag modifiedObject)
         {
             _logger.LogInformation($"Updating a {_logName}, Service Layer");
+
+            var cacheKey = $"Tag{modifiedObject.Id}";
+
             try
             {
                 _context.Entry(modifiedObject).State = EntityState.Modified;
@@ -151,7 +168,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
                 var affectedItems = await _context.SaveChangesAsync();
 
                 //neccessairy to clear the cache after an update
-                await ClearCache();
+                await ClearCache(cacheKey);
 
                 return affectedItems;
             }
@@ -162,12 +179,12 @@ namespace ELib_IDSFintech_Internship.Services.Books
             }
         }
 
-        public Task<bool?> ClearCache()
+        public Task<bool?> ClearCache(string key)
         {
             _logger.LogInformation($"Clearing all cached {_logName}s, Service Layer");
             try
             {
-                _memoryCache.Remove(cacheKey);
+                _memoryCache.Remove(key);
 
                 _logger.LogInformation($"Cleared all cached {_logName}s");
 

@@ -15,9 +15,6 @@ namespace ELib_IDSFintech_Internship.Services.Books
         //conveniently used when was copy pasting from another controller to this, and left behind.
         private readonly string _logName = "BookFormat";
 
-        private readonly string cacheKey = "bookFormatsCaching";
-        private IEnumerable<BookFormat>? cachedBookFormats;
-
 
         public BookFormatService(Data.ELibContext context, ILogger<BookFormatService> logger, IMemoryCache memoryCache)
         {
@@ -50,6 +47,9 @@ namespace ELib_IDSFintech_Internship.Services.Books
         public async Task<int?> Delete(int id)
         {
             _logger.LogInformation($"Deleting a {_logName}, Service Layer");
+
+            var cacheKey = $"Format{id}";
+
             try
             {
                 var entity = await _context.BookFormats.Where(x => x.Id == id).FirstOrDefaultAsync();
@@ -65,7 +65,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
                 var affectedItems = await _context.SaveChangesAsync();
 
                 //neccessairy to clear the cache after a delete
-                await ClearCache();
+                await ClearCache(cacheKey);
 
                 return affectedItems;
             }
@@ -79,10 +79,13 @@ namespace ELib_IDSFintech_Internship.Services.Books
         public async Task<IEnumerable<BookFormat>?> GetAll()
         {
             _logger.LogInformation($"Getting all {_logName}s information, Service Layer");
+
+            var cacheKey = "bookFormatsCaching";
+
             try
             {
 
-                if (_memoryCache.TryGetValue(cacheKey, out cachedBookFormats))
+                if (_memoryCache.TryGetValue(cacheKey, out IEnumerable<BookFormat>? cachedBookFormats))
                 {
                     _logger.LogInformation($"{_logName}s retrieved from cache");
                 }
@@ -94,9 +97,9 @@ namespace ELib_IDSFintech_Internship.Services.Books
 
                     //Setting behavior of the cached items after a certain passed time
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
-                        .SetSlidingExpiration(TimeSpan.FromSeconds(45))
-                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
-                        .SetPriority(CacheItemPriority.Normal);
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(30))
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(5))
+                    .SetPriority(CacheItemPriority.Normal);
 
                     _memoryCache.Set(cacheKey, cachedBookFormats, cacheEntryOptions);
                 }
@@ -113,22 +116,25 @@ namespace ELib_IDSFintech_Internship.Services.Books
         public async Task<BookFormat?> GetById(int id)
         {
             _logger.LogInformation($"Getting a single {_logName} using his ID: {id}, Service Layer");
+
+            var cacheKey = $"Format{id}";
+
             try
             {
                 //if all books are cached we enter
-                if (_memoryCache.TryGetValue(cacheKey, out cachedBookFormats))
+                if (_memoryCache.TryGetValue(cacheKey, out BookFormat? cachedBookFormats))
                 {
                     //we try to get the specific book from the cache
                     _logger.LogInformation($"{_logName}s retrieved from cache");
-                    return cachedBookFormats?.Where(l => l.Id == id).FirstOrDefault();
+                    return cachedBookFormats;
                 }
                 else
                 {
                     //if there is no cache then we call database
                     _logger.LogInformation($"{_logName}s not found in cache");
+                    var result = await _context.BookFormats.Where(l => l.Id == id).FirstOrDefaultAsync();
 
-                    cachedBookFormats = await _context.BookFormats.ToListAsync();
-                    return await _context.BookFormats.Where(l => l.Id == id).FirstOrDefaultAsync();
+                    return result;
 
                 }
 
@@ -143,6 +149,9 @@ namespace ELib_IDSFintech_Internship.Services.Books
         public async Task<int?> Update(BookFormat modifiedObject)
         {
             _logger.LogInformation($"Updating a {_logName}, Service Layer");
+
+            var cacheKey = $"Format{modifiedObject.Id}";
+
             try
             {
                 _context.Entry(modifiedObject).State = EntityState.Modified;
@@ -151,7 +160,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
                 var affectedItems = await _context.SaveChangesAsync();
 
                 //neccessairy to clear the cache after an update
-                await ClearCache();
+                await ClearCache(cacheKey);
 
                 return affectedItems;
             }
@@ -162,12 +171,12 @@ namespace ELib_IDSFintech_Internship.Services.Books
             }
         }
 
-        public Task<bool?> ClearCache()
+        public Task<bool?> ClearCache(string key)
         {
             _logger.LogInformation($"Clearing all cached {_logName}s, Service Layer");
             try
             {
-                _memoryCache.Remove(cacheKey);
+                _memoryCache.Remove(key);
 
                 _logger.LogInformation($"Cleared all cached {_logName}s");
 

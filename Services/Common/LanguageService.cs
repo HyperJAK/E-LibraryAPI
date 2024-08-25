@@ -14,9 +14,6 @@ namespace ELib_IDSFintech_Internship.Services.Common
         //conveniently used when was copy pasting from another controller to this, and left behind.
         private readonly string _logName = "Language";
 
-        private readonly string cacheKey = "languagesCaching";
-        private IEnumerable<Language>? cachedLanguages;
-
 
         public LanguageService(Data.ELibContext context, ILogger<LanguageService> logger, IMemoryCache memoryCache)
         {
@@ -49,6 +46,9 @@ namespace ELib_IDSFintech_Internship.Services.Common
         public async Task<int?> Delete(int id)
         {
             _logger.LogInformation($"Deleting a {_logName}, Service Layer");
+
+            var cacheKey = $"Language{id}";
+
             try
             {
                 var entity = await _context.Languages.Where(x => x.Id == id).FirstOrDefaultAsync();
@@ -64,7 +64,7 @@ namespace ELib_IDSFintech_Internship.Services.Common
                 var affectedItems = await _context.SaveChangesAsync();
 
                 //neccessairy to clear the cache after a delete
-                await ClearCache();
+                await ClearCache(cacheKey);
 
                 return affectedItems;
             }
@@ -78,12 +78,16 @@ namespace ELib_IDSFintech_Internship.Services.Common
         public async Task<IEnumerable<Language>?> GetAll()
         {
             _logger.LogInformation($"Getting all {_logName}s information, Service Layer");
+
+            var cacheKey = "languagesCaching";
+
             try
             {
 
-                if (_memoryCache.TryGetValue(cacheKey, out cachedLanguages))
+                if (_memoryCache.TryGetValue(cacheKey, out IEnumerable<Language>?  cachedLanguages))
                 {
                     _logger.LogInformation($"{_logName}s retrieved from cache");
+                    return cachedLanguages;
                 }
                 else
                 {
@@ -93,14 +97,15 @@ namespace ELib_IDSFintech_Internship.Services.Common
 
                     //Setting behavior of the cached items after a certain passed time
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
-                        .SetSlidingExpiration(TimeSpan.FromSeconds(45))
-                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
-                        .SetPriority(CacheItemPriority.Normal);
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(30))
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(5))
+                    .SetPriority(CacheItemPriority.Normal);
 
                     _memoryCache.Set(cacheKey, cachedLanguages, cacheEntryOptions);
+
+                    return cachedLanguages;
                 }
 
-                return cachedLanguages;
             }
             catch (Exception ex)
             {
@@ -112,22 +117,33 @@ namespace ELib_IDSFintech_Internship.Services.Common
         public async Task<Language?> GetById(int id)
         {
             _logger.LogInformation($"Getting a single {_logName} using his ID: {id}, Service Layer");
+
+            var cacheKey = $"Language{id}";
+
             try
             {
                 //if all books are cached we enter
-                if (_memoryCache.TryGetValue(cacheKey, out cachedLanguages))
+                if (_memoryCache.TryGetValue(cacheKey, out Language? cachedLanguages))
                 {
                     //we try to get the specific book from the cache
                     _logger.LogInformation($"{_logName}s retrieved from cache");
-                    return cachedLanguages?.Where(l => l.Id == id).FirstOrDefault();
+                    return cachedLanguages;
                 }
                 else
                 {
                     //if there is no cache then we call database
                     _logger.LogInformation($"{_logName}s not found in cache");
+                    var result  = await _context.Languages.Where(l => l.Id == id).FirstOrDefaultAsync();
 
-                    cachedLanguages = await _context.Languages.ToListAsync();
-                    return await _context.Languages.Where(l => l.Id == id).FirstOrDefaultAsync();
+                    //Setting behavior of the cached items after a certain passed time
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(30))
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(5))
+                    .SetPriority(CacheItemPriority.Normal);
+
+                    _memoryCache.Set(cacheKey, result, cacheEntryOptions);
+
+                    return result;
 
                 }
 
@@ -142,6 +158,9 @@ namespace ELib_IDSFintech_Internship.Services.Common
         public async Task<int?> Update(Language modifiedObject)
         {
             _logger.LogInformation($"Updating a {_logName}, Service Layer");
+
+            var cacheKey = $"Language{modifiedObject.Id}";
+
             try
             {
                 _context.Entry(modifiedObject).State = EntityState.Modified;
@@ -150,7 +169,7 @@ namespace ELib_IDSFintech_Internship.Services.Common
                 var affectedItems = await _context.SaveChangesAsync();
                 
                 //neccessairy to clear the cache after an update
-                await ClearCache();
+                await ClearCache(cacheKey);
 
                 return affectedItems;
             }
@@ -161,12 +180,12 @@ namespace ELib_IDSFintech_Internship.Services.Common
             }
         }
 
-        public Task<bool?> ClearCache()
+        public Task<bool?> ClearCache(string key)
         {
             _logger.LogInformation($"Clearing all cached {_logName}s, Service Layer");
             try
             {
-                _memoryCache.Remove(cacheKey);
+                _memoryCache.Remove(key);
 
                 _logger.LogInformation($"Cleared all cached {_logName}s");
 
