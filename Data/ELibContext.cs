@@ -1,5 +1,6 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
 using ELib_IDSFintech_Internship.Models.Common;
+using ELib_IDSFintech_Internship.Models.Tools;
 using ELib_IDSFintech_Internship.Models.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -115,6 +116,13 @@ namespace ELib_IDSFintech_Internship.Data
                 .WithMany(b => b.UserBooks)
                 .HasForeignKey(ub => ub.BookId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            //This is for the user's sessions
+            modelBuilder.Entity<Session>()
+                .HasOne(s => s.User)
+                .WithMany(u => u.Sessions)
+                .HasForeignKey(s => s.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         public DbSet<User> Users => Set<User>();
@@ -131,6 +139,8 @@ namespace ELib_IDSFintech_Internship.Data
         public DbSet<BookLocation> BookLocations => Set<BookLocation>();
 
         public DbSet<Language> Languages => Set<Language>();
+
+        public DbSet<Session> Sessions => Set<Session>();
 
     }
 }

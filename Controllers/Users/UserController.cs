@@ -1,8 +1,10 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
 using ELib_IDSFintech_Internship.Models.Users;
 using ELib_IDSFintech_Internship.Services.Enums;
+using ELib_IDSFintech_Internship.Services.Tools;
 using ELib_IDSFintech_Internship.Services.Users;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
 
 namespace ELib_IDSFintech_Internship.Controllers.Users
 {
@@ -56,15 +58,17 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
 
             try
             {
-                var user = await _service.VerifyUser(verificationObject);
+                var (user, sessionId) = await _service.VerifyUser(verificationObject);
 
-                if (user == null)
+                if (user == null || sessionId == null)
                 {
                     _logger.LogWarning($"No {_logName} to verify");
                     return NotFound();
                 }
 
-                return Ok(user);
+                Response.Headers.Append("x-session-id", sessionId);
+
+                return Ok(new { userData = user, status = ResponseType.ResponseSuccess, message = "User Signed in successfully" });
             }
             catch (Exception ex)
             {
@@ -81,15 +85,17 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
 
             try
             {
-                var user = await _service.Create(newObject);
+                var (user, sessionId) = await _service.Create(newObject);
 
-                if (user == null)
+                if (user == null || sessionId == null)
                 {
                     _logger.LogWarning($"No {_logName} Updated");
                     return NotFound();
                 }
 
-                return Ok(user);
+                Response.Headers.Append("x-session-id", sessionId);
+
+                return Ok(new { userData = user, status = ResponseType.ResponseSuccess, message = "User created successfully" });
             }
             catch (Exception ex)
             {

@@ -2,7 +2,6 @@
 using ELib_IDSFintech_Internship.Data;
 using ELib_IDSFintech_Internship.Services.Books;
 using ELib_IDSFintech_Internship.Services.Common;
-using ELib_IDSFintech_Internship.Services.Enums;
 using ELib_IDSFintech_Internship.Services.Tools;
 using ELib_IDSFintech_Internship.Services.Users;
 using Microsoft.EntityFrameworkCore;
@@ -46,10 +45,11 @@ namespace ELib_IDSFintech_Internship
             builder.Services.AddScoped<SubscriptionService>();
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<BookFormatService>();
-            builder.Services.AddScoped<LanguageService>(); 
+            builder.Services.AddScoped<LanguageService>();
+            builder.Services.AddScoped<SessionManagementService>();
 
             builder.Services.AddSingleton<AES256Encryption>();
-            builder.Services.AddSingleton<SessionManagement>();
+            
 
             var app = builder.Build();
 
@@ -73,7 +73,8 @@ namespace ELib_IDSFintech_Internship
             app.UseCors(options => options
             .WithOrigins("http://localhost:3000", "http://localhost:3001")
             .AllowAnyMethod()
-            .AllowAnyHeader());
+            .AllowAnyHeader()
+            .WithExposedHeaders("x-session-id"));
 
             // Default message to show on default / page
             app.MapGet("/", () => @"Tasks management API. Navigate to /swagger to open the Swagger test UI.");

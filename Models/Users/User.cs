@@ -1,6 +1,8 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
+using ELib_IDSFintech_Internship.Models.Tools;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace ELib_IDSFintech_Internship.Models.Users
 {
@@ -15,7 +17,6 @@ namespace ELib_IDSFintech_Internship.Models.Users
         [MaxLength(100)]
         public required string Email { get; set; }
 
-        [MaxLength(300)]
         public required string Password { get; set; }
 
         [MaxLength(30)]
@@ -40,6 +41,9 @@ namespace ELib_IDSFintech_Internship.Models.Users
         public DateOnly? SubscriptionStartDate { get; set; }
 
         public DateOnly? SubscriptionEndDate { get; set; }
+
+        [JsonIgnore]
+        public ICollection<Session>? Sessions { get; set; }
 
         public required DateTime TimeStamp { get; set; }
 

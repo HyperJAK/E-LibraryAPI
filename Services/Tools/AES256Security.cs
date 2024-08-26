@@ -24,8 +24,8 @@
 
         public AES256Encryption(IConfiguration configuration)
         {
-            _key = Convert.FromHexString(configuration["Encryption:Key"]);
-            _initVector = Convert.FromHexString(configuration["Encryption:InitVector"]);
+            _key = Convert.FromBase64String(configuration["Encryption:Key"]);
+            _initVector = Convert.FromBase64String(configuration["Encryption:InitVector"]);
         }
 
         public string Encrypt(string plainText)
