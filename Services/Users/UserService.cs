@@ -1,6 +1,8 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
+using ELib_IDSFintech_Internship.Models.Books.RequestPayloads;
 using ELib_IDSFintech_Internship.Models.Users;
 using ELib_IDSFintech_Internship.Models.Users.RequestPayloads;
+using ELib_IDSFintech_Internship.Models.Users.Sessions;
 using ELib_IDSFintech_Internship.Models.Users.Subscriptions;
 using ELib_IDSFintech_Internship.Repositories;
 using ELib_IDSFintech_Internship.Repositories.Users;
@@ -164,9 +166,10 @@ namespace ELib_IDSFintech_Internship.Services.Users
             }
         }
 
-        public async Task<(User?, string)> Create(User newObject)
+        public async Task<UserActionResponse?> Create(User newObject)
         {
             _logger.LogInformation($"Creating a {_logName}, Service Layer");
+            var response = new UserActionResponse();
             try
             {
                 //first we encrypt the hash password
@@ -182,7 +185,24 @@ namespace ELib_IDSFintech_Internship.Services.Users
                 //Here we generate session ID
                 var sessionId = await _sessionManager.GenerateSessionId(getUpdated.Id);
 
-                return (getUpdated, sessionId);
+                //we prepare response based on the result
+                if (sessionId != null)
+                {
+                    response.Status = (int)ResponseType.ResponseSuccess;
+                    response.Message = $"Successfully created the {_logName}";
+                    response.User = getUpdated;
+                    response.SessionID = sessionId;
+                }
+                else
+                {
+                    response.Status = (int)ResponseType.FailedToCreate;
+                    response.Message = $"Failed to create the {_logName}";
+                    response.User = getUpdated;
+                    response.SessionID = sessionId;
+                }
+
+                return response;
+
             }
             catch (Exception ex)
             {
@@ -191,9 +211,11 @@ namespace ELib_IDSFintech_Internship.Services.Users
             }
         }
 
-        public async Task<int?> Delete(int id)
+        public async Task<UserActionResponse?> Delete(int id)
         {
+
             _logger.LogInformation($"Deleting a {_logName}, Service Layer");
+            var response = new UserActionResponse();
             try
             {
                 var entity = await _context.Users.Where(x => x.Id == id).FirstOrDefaultAsync();
@@ -201,20 +223,40 @@ namespace ELib_IDSFintech_Internship.Services.Users
                 if (entity == null)
                 {
                     _logger.LogInformation($"No {_logName} found");
-                    return null;
+                    response.Status = (int)ResponseType.NoObjectFound;
+                    response.Message = $"Couldn't find a {_logName} with ID: {id}";
+                    return response;
                 }
                 _context.Users.Remove(entity);
 
-                await ClearCache($"User_{entity.Id}");
 
-                //returns how many entries were deleted (should be 1 if it found the location that needs deleting)
-                return await _context.SaveChangesAsync();
+                //returns how many entries were updated (should be 1 if it found the location that needs updating)
+                var result = await _context.SaveChangesAsync();
+
+
+                //neccessairy to clear the cache after a delete
+                await ClearCache($"User_{id}");
+
+                //we prepare response based on the result
+                if (result > 0)
+                {
+                    response.Status = (int)ResponseType.ResponseSuccess;
+                    response.Message = $"Successfully deleted the {_logName}";
+                }
+                else
+                {
+                    response.Status = (int)ResponseType.FailedToDelete;
+                    response.Message = $"Failed to delete the {_logName}";
+                }
+
+                return response;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Failed to delete the {_logName}, in Service Layer");
                 throw ex;
             }
+
         }
 
         public async Task<IEnumerable<User>?> GetAll()
@@ -395,21 +437,51 @@ namespace ELib_IDSFintech_Internship.Services.Users
         }
 
 
-        public async Task<(User?, string)> VerifyUser(VerificationRequest verificationObject)
+        public async Task<UserActionResponse?> VerifyUser(VerificationRequest verificationObject)
         {
             _logger.LogInformation($"verifying a {_logName}, Service Layer");
+            var response = new UserActionResponse();
             try
             {
-                verificationObject.Password = _securityAES.Encrypt(verificationObject.Password);
-                var user = await _context.Users.Where(l => (l.Email == verificationObject.Email && l.Password == verificationObject.Password)).FirstOrDefaultAsync();
+                var user = await _context.Users.Where(l => l.Email == verificationObject.Email).FirstOrDefaultAsync();
 
-                if (user == null) {
-                    return (null, null);
+                if (user == null)
+                {
+                    return null;
                 }
-                //Here we generate session ID
-                var sessionId = await _sessionManager.GenerateSessionId(user.Id);
+                
+                if(_securityAES.Decrypt(user.Password) == verificationObject.Password)
+                {
+                    //Here we generate session ID
+                    var sessionId = await _sessionManager.GenerateSessionId(user.Id);
 
-                return (user, sessionId);
+                    //we prepare response based on the result
+                    if (sessionId != null)
+                    {
+                        response.Status = (int)ResponseType.ResponseSuccess;
+                        response.Message = $"Successfully SignedIn the {_logName}";
+                        response.User = user;
+                        response.SessionID = sessionId;
+                    }
+                    else
+                    {
+                        response.Status = (int)ResponseType.FailedToSignIn;
+                        response.Message = $"Failed to SignIn to {_logName}";
+                        response.User = user;
+                        response.SessionID = sessionId;
+                    }
+
+                    return response;
+                }
+                else
+                {
+                    response.Status = (int)ResponseType.FailedToSignIn;
+                    response.Message = $"{_logName} password does not match";
+                    response.User = user;
+
+                    return response;
+                }
+
             }
             catch (Exception ex)
             {
@@ -437,7 +509,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
             }
         }
 
-        public async Task<ResponseType?> AddSubscription(AddSubscriptionRequest request)
+        public async Task<ResponseType?> AddSubscription(SubscriptionActionRequest request)
         {
             _logger.LogInformation($"Assigning a subscription for a {_logName}, Service Layer");
             try
@@ -467,7 +539,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
                 var count = await _context.SaveChangesAsync();
 
                 //clearing cache
-                await ClearCache($"User_{user.Id}");
+                await ClearCache($"User_{request.UserId}");
 
                 if (count > 0)
                 {
@@ -492,6 +564,57 @@ namespace ELib_IDSFintech_Internship.Services.Users
         Task<int?> IDefaultRepository<User>.Update(User modifiedObject)
         {
             throw new NotImplementedException();
+        }
+
+        Task<int?> IDefaultRepository<User>.Delete(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<UserActionResponse?> LogOut(UserActionRequest request)
+        {
+            _logger.LogInformation($"Logging a {_logName} out, Service Layer");
+            var response = new UserActionResponse();
+            try
+            {
+                var entity = await _context.Sessions.Where(x => x.UserId == request.Id && x.SessionId == request.SessionID).FirstOrDefaultAsync();
+
+                if (entity == null)
+                {
+                    _logger.LogInformation($"No Session found");
+                    response.Status = (int)ResponseType.NoObjectFound;
+                    response.Message = $"Couldn't find a Session";
+                    return response;
+                }
+                entity.Valid = false;
+
+
+                //returns how many entries were updated (should be 1 if it found the location that needs updating)
+                var result = await _context.SaveChangesAsync();
+
+
+                //neccessairy to clear the cache after a delete
+                await ClearCache($"User_{request.Id}");
+
+                //we prepare response based on the result
+                if (result > 0)
+                {
+                    response.Status = (int)ResponseType.ResponseSuccess;
+                    response.Message = $"Successfully logged out the {_logName}";
+                }
+                else
+                {
+                    response.Status = (int)ResponseType.FailedToLogOut;
+                    response.Message = $"Failed to logout the {_logName}";
+                }
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to delete the {_logName}, in Service Layer");
+                throw ex;
+            }
         }
     }
 }

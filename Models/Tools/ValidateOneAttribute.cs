@@ -22,10 +22,7 @@
             var property2Value = validationContext.ObjectType.GetProperty(_property2)?.GetValue(validationContext.ObjectInstance);
             var property3Value = validationContext.ObjectType.GetProperty(_property3)?.GetValue(validationContext.ObjectInstance);
 
-            if (property3Value == null)
-            {
-                return new ValidationResult($"{_property3} must be provided");
-            }
+
             //if both arent present
             if (property1Value == null && property2Value == null)
             {

@@ -10,7 +10,11 @@
         UserAlreadySubscribed = (int)435,
         OutOfBook = (int)436,
         FailedRequiredDataValidation = (int)437,
-        FailedToUpdate = (int)438
+        FailedToUpdate = (int)438,
+        FailedToDelete = (int)439,
+        FailedToCreate = (int)440,
+        FailedToSignIn = (int)441,
+        FailedToLogOut = (int)442
 
     }
 }

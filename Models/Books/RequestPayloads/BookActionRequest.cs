@@ -1,19 +1,19 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books.Authors;
 using ELib_IDSFintech_Internship.Models.Tools;
+using ELib_IDSFintech_Internship.Repositories;
+using ELib_IDSFintech_Internship.Repositories.Books;
 using ELib_IDSFintech_Internship.Repositories.Books.Authors;
-using ELib_IDSFintech_Internship.Repositories.Users;
 
-namespace ELib_IDSFintech_Internship.Models.Users.RequestPayloads
+namespace ELib_IDSFintech_Internship.Models.Books.RequestPayloads
 {
     [ValidateOne("EntityObject", "Id", "SessionID")]
-    public class UserActionRequest : IUserActionRequestRepository
+    public class BookActionRequest : IBookActionRequestRepository
     {
-
-        private string? _sessionID;
-        private User? _entityObject;
+        private string _sessionID;
+        private Book? _entityObject;
         private int? _id;
 
-        public User? EntityObject
+        public Book? EntityObject
         {
             get => _entityObject;
             set => _entityObject = value;
@@ -30,5 +30,6 @@ namespace ELib_IDSFintech_Internship.Models.Users.RequestPayloads
             get => _sessionID;
             set => _sessionID = value;
         }
+       
     }
 }

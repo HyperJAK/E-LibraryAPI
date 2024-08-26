@@ -5,7 +5,7 @@ namespace ELib_IDSFintech_Internship.Repositories
 {
     public interface IDefaultRequestPayloadRepository<T>
     {
-        public string SessionID { get; set; }
+        public string? SessionID { get; set; }
         public T? EntityObject { get; set; }
         public int? Id { get; set; }
     }
