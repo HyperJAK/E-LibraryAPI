@@ -1,6 +1,5 @@
 ﻿using ELib_IDSFintech_Internship.Models.Common;
-using ELib_IDSFintech_Internship.Models.Tools;
-using ELib_IDSFintech_Internship.Models.Users;
+using ELib_IDSFintech_Internship.Models.Users.Sessions;
 using ELib_IDSFintech_Internship.Services.Common;
 using ELib_IDSFintech_Internship.Services.Tools;
 using Microsoft.AspNetCore.Mvc;

@@ -1,5 +1,7 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
 using ELib_IDSFintech_Internship.Models.Users;
+using ELib_IDSFintech_Internship.Models.Users.RequestPayloads;
+using ELib_IDSFintech_Internship.Models.Users.Subscriptions;
 using ELib_IDSFintech_Internship.Repositories;
 using ELib_IDSFintech_Internship.Repositories.Users;
 using ELib_IDSFintech_Internship.Services.Books;
@@ -331,50 +333,67 @@ namespace ELib_IDSFintech_Internship.Services.Users
             }
         }
 
-        public async Task<int?> Update(User modifiedObject)
+        public async Task<UserActionResponse?> Update(User modifiedObject)
         {
             _logger.LogInformation($"Updating a {_logName}, Service Layer");
+            var response = new UserActionResponse();
             try
             {
                 //clearing cache
                 await ClearCache($"User_{modifiedObject.Id}");
 
-                //first we encrypt the hash password
+                //first we encrypt password
                 modifiedObject.Password = _securityAES.Encrypt(modifiedObject.Password);
 
                 _context.Entry(modifiedObject).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
 
-                //we initiale / create a new database credit card and add it to this user
-                if (modifiedObject.CreditCard.Id == null || modifiedObject.CreditCard.Id == 0)
+                var result = await _context.SaveChangesAsync();
+
+                //we creadit a user credit card if not created or update one
+                if(modifiedObject.CreditCard != null)
                 {
-                    _logger.LogInformation($"Creating a new creditCard in table and linking it to current user, Service Layer");
-                    _context.CreditCards.Add(modifiedObject.CreditCard);
-                    await _context.SaveChangesAsync();
+                    if (modifiedObject.CreditCard?.Id == null || modifiedObject.CreditCard.Id == 0)
+                    {
+                        _logger.LogInformation($"Creating a new credit card for user, Service Layer");
+                        _context.CreditCards.Add(modifiedObject.CreditCard);
+                        await _context.SaveChangesAsync();
 
-                    var user = await _context.Users.Where(l => l.Id == modifiedObject.Id).FirstOrDefaultAsync();
-                    var newlyCreatedCreditCard = await _context.CreditCards.Where(l => l.Id == modifiedObject.CreditCard.Id).FirstOrDefaultAsync();
+                        var user = await _context.Users.Where(l => l.Id == modifiedObject.Id).FirstOrDefaultAsync();
+                        var newlyCreatedCreditCard = await _context.CreditCards.Where(l => l.Id == modifiedObject.CreditCard.Id).FirstOrDefaultAsync();
 
-                    user.CreditCard = newlyCreatedCreditCard;
-                    await _context.SaveChangesAsync();
-                    return (int)ResponseType.ResponseSuccess;
+                        user.CreditCard = newlyCreatedCreditCard;
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"Updating existing user credit card, Service Layer");
+                        _context.Entry(modifiedObject.CreditCard).State = EntityState.Modified;
+                        result += await _context.SaveChangesAsync();
+                    }
+                }
+                
 
+                //we prepare response based on the result
+                if (result > 0)
+                {
+                    response.Status = (int)ResponseType.ResponseSuccess;
+                    response.Message = $"Successfully updated the {_logName}";
                 }
                 else
                 {
-                    _logger.LogInformation($"Updating already existing user creditCard, Service Layer");
-                    _context.Entry(modifiedObject.CreditCard).State = EntityState.Modified;
-                    return await _context.SaveChangesAsync();
+                    response.Status = (int)ResponseType.FailedToUpdate;
+                    response.Message = $"Failed to update the {_logName}";
                 }
 
-
+                return response;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Failed to update the {_logName}, in Service Layer");
-                throw ex;
+                throw;
             }
         }
+
 
         public async Task<(User?, string)> VerifyUser(VerificationRequest verificationObject)
         {
@@ -466,6 +485,11 @@ namespace ELib_IDSFintech_Internship.Services.Users
         }
 
         Task<User?> IDefaultRepository<User>.Create(User newObject)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<int?> IDefaultRepository<User>.Update(User modifiedObject)
         {
             throw new NotImplementedException();
         }

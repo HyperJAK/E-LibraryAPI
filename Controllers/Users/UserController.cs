@@ -1,5 +1,8 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
+using ELib_IDSFintech_Internship.Models.Books.Authors.RequestPayloads;
 using ELib_IDSFintech_Internship.Models.Users;
+using ELib_IDSFintech_Internship.Models.Users.RequestPayloads;
+using ELib_IDSFintech_Internship.Models.Users.Subscriptions;
 using ELib_IDSFintech_Internship.Services.Enums;
 using ELib_IDSFintech_Internship.Services.Tools;
 using ELib_IDSFintech_Internship.Services.Users;
@@ -132,23 +135,37 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
 
 
         [HttpPut("api/update")]
-        public async Task<IActionResult> Update(User modifiedObject)
+        public async Task<IActionResult> Update([FromBody] UserActionRequest request)
         {
-            _logger.LogInformation($"Updating a {_logName}, Controller Layer");
-
             try
             {
-                var countUpdated = await _service.Update(modifiedObject);
+                _logger.LogInformation($"Updating a {_logName}, Controller Layer");
 
-                if (countUpdated > 0)
+                //first thing we do is validate wether our object is valid based on the rules that we provided in the Class that it belongs to
+                if (ModelState.IsValid)
                 {
-                    return Ok(new { status = 200, message = "user successfully updated" });
+                    //if no SessionID in request
+                    if (request.SessionID == null)
+                    {
+                        return Ok(new { status = ResponseType.UserNotLoggedIn, message = "You are not logged in or Session expired please relogin" });
+                    }
+
+                    if (request.EntityObject != null)
+                    {
+                        var response = await _service.Update(request.EntityObject);
+
+                        return Ok(response);
+                    }
+                    else
+                    {
+                        return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to update" });
+                    }
                 }
                 else
                 {
-                    _logger.LogWarning($"No {_logName} Updated");
-                    return Ok(new { status = 404, message = "Error, user couldn't be updated" });
+                    return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to update" });
                 }
+
             }
             catch (Exception ex)
             {

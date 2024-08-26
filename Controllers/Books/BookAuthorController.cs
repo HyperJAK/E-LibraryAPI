@@ -1,5 +1,11 @@
-﻿using ELib_IDSFintech_Internship.Models.Books;
+﻿using ELib_IDSFintech_Internship.Models.Books.Authors;
+using ELib_IDSFintech_Internship.Models.Books.Authors.RequestPayloads;
+using ELib_IDSFintech_Internship.Models.Users.RequestPayloads;
+using ELib_IDSFintech_Internship.Repositories;
+using ELib_IDSFintech_Internship.Repositories.Books.Authors;
 using ELib_IDSFintech_Internship.Services.Books;
+using ELib_IDSFintech_Internship.Services.Enums;
+using ELib_IDSFintech_Internship.Services.Tools;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ELib_IDSFintech_Internship.Controllers.Books
@@ -10,15 +16,16 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
     {
         private readonly BookAuthorService _service;
         private readonly ILogger<BookAuthorController> _logger;
+        private readonly SessionManagementService _sessionManager;
 
         //conveniently used when was copy pasting from another controller to this, and left behind.
         private readonly string _logName = "BookAuthor";
 
-
-        public BookAuthorController(ILogger<BookAuthorController> logger, BookAuthorService service)
+        public BookAuthorController(ILogger<BookAuthorController> logger, BookAuthorService service, SessionManagementService sessionManager)
         {
             _logger = logger;
             _service = service;
+            _sessionManager = sessionManager;
         }
 
         [HttpGet("api/data")]
@@ -47,13 +54,19 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
         }
 
         [HttpPost("api/create")]
-        public async Task<IActionResult> Create(BookAuthor newObject)
+        public async Task<IActionResult> Create(AuthorActionRequest request)
         {
             _logger.LogInformation($"Creating a {_logName}, Controller Layer");
 
             try
             {
-                var countCreated = await _service.Create(newObject);
+                //first thing we do is validate wether our object is valid based on the rules that we provided in the Class that it belongs to
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var countCreated = await _service.Create(request.EntityObject);
 
                 if (countCreated == null)
                 {
@@ -72,13 +85,13 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
         }
 
         [HttpGet("api/data/{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(UserActionRequest request)
         {
-            _logger.LogInformation($"Getting a single {_logName} with ID: {id}, Controller Layer");
-
             try
             {
-                var result = await _service.GetById(id);
+                _logger.LogInformation($"Getting a single {_logName} with ID: {request.Id}, Controller Layer");
+
+                var result = await _service.GetById((int)request.Id);
 
                 if (result == null)
                 {
@@ -90,7 +103,7 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"An error occurred while getting {_logName} with ID: {id}");
+                _logger.LogError(ex, $"An error occurred while getting {_logName} with ID: {request.Id}");
                 return StatusCode(500, "Internal server error");
             }
 
@@ -98,21 +111,37 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
 
 
         [HttpPut("api/update")]
-        public async Task<IActionResult> Update(BookAuthor modifiedObject)
+        public async Task<IActionResult> Update(AuthorActionRequest request)
         {
-            _logger.LogInformation($"Updating a {_logName}, Controller Layer");
-
             try
             {
-                var countUpdated = await _service.Update(modifiedObject);
+                _logger.LogInformation($"Updating a {_logName}, Controller Layer");
 
-                if (countUpdated == null || countUpdated.Value <= 0)
+                //first thing we do is validate wether our object is valid based on the rules that we provided in the Class that it belongs to
+                if (ModelState.IsValid)
                 {
-                    _logger.LogWarning($"No {_logName} Updated");
-                    return NotFound();
+                    //if no SessionID in request
+                    if(request.SessionID == null)
+                    {
+                        return Ok(new { status = ResponseType.UserNotLoggedIn, message = "You are not logged in or Session expired please relogin" });
+                    }
+
+                    if (request.EntityObject != null)
+                    {
+                        var response = await _service.Update(request.EntityObject);
+
+                        return Ok(response);
+                    }
+                    else
+                    {
+                        return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to update" });
+                    }
+                }
+                else
+                {
+                    return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to update" });
                 }
 
-                return Ok(countUpdated);
             }
             catch (Exception ex)
             {
@@ -124,25 +153,40 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
 
 
         [HttpDelete("api/delete")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(UserActionRequest request)
         {
-            _logger.LogInformation($"Deleting a {_logName} with ID: {id}, Controller Layer");
-
             try
             {
-                var countDeleted = await _service.Delete(id);
+                _logger.LogInformation($"Deleting a {_logName} with ID: {request.Id}, Controller Layer");
 
-                if (countDeleted == null || countDeleted.Value <= 0)
+                //first thing we do is validate wether our object is valid based on the rules that we provided in the Class that it belongs to
+                if (!ModelState.IsValid)
                 {
-                    _logger.LogWarning($"No {_logName} deleted");
-                    return NotFound();
+                    return BadRequest(ModelState);
+                }
+                else if(request.Id != null)
+                {
+                    var countDeleted = await _service.Delete((int)request.Id);
+
+                    if (countDeleted == null || countDeleted.Value <= 0)
+                    {
+                        _logger.LogWarning($"No {_logName} deleted");
+                        return NotFound();
+                    }
+
+                    return Ok(countDeleted);
+                }
+                else
+                {
+                    //replace this with the ResponseType thing like in BorrowBook
+                    return BadRequest();
                 }
 
-                return Ok(countDeleted);
+                
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"An error occurred while deleting {_logName} with ID: {id}");
+                _logger.LogError(ex, $"An error occurred while deleting {_logName} with ID: {request.Id}");
                 return StatusCode(500, "Internal server error");
             }
 

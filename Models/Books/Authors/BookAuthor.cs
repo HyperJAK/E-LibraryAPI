@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ELib_IDSFintech_Internship.Models.Books
+namespace ELib_IDSFintech_Internship.Models.Books.Authors
 {
     public class BookAuthor
     {

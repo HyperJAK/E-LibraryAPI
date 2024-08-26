@@ -1,7 +1,7 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
 using System.ComponentModel.DataAnnotations;
 
-namespace ELib_IDSFintech_Internship.Models.Users
+namespace ELib_IDSFintech_Internship.Models.Users.Subscriptions
 {
     public class Subscription
     {

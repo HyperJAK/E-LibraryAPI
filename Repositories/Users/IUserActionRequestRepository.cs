@@ -2,7 +2,7 @@
 
 namespace ELib_IDSFintech_Internship.Repositories.Users
 {
-    public interface ISubscriptionRepository : IDefaultRepository<Subscription>
+    public interface IUserActionRequestRepository : IDefaultRequestPayloadRepository<User>
     {
     }
 }

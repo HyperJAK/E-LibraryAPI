@@ -1,4 +1,4 @@
-﻿namespace ELib_IDSFintech_Internship.Models.Users
+﻿namespace ELib_IDSFintech_Internship.Models.Users.Sessions
 {
     public class SessionActionRequest
     {

@@ -1,4 +1,4 @@
-﻿using ELib_IDSFintech_Internship.Models.Users;
+﻿using ELib_IDSFintech_Internship.Models.Users.CreditCards;
 using ELib_IDSFintech_Internship.Services.Users;
 using Microsoft.AspNetCore.Mvc;
 

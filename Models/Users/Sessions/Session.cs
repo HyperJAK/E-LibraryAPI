@@ -1,7 +1,7 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
 using ELib_IDSFintech_Internship.Models.Users;
 
-namespace ELib_IDSFintech_Internship.Models.Tools
+namespace ELib_IDSFintech_Internship.Models.Users.Sessions
 {
     public class Session
     {

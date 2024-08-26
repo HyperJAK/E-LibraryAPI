@@ -1,5 +1,7 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
 using ELib_IDSFintech_Internship.Models.Users;
+using ELib_IDSFintech_Internship.Models.Users.RequestPayloads;
+using ELib_IDSFintech_Internship.Models.Users.Subscriptions;
 using ELib_IDSFintech_Internship.Services.Enums;
 
 namespace ELib_IDSFintech_Internship.Repositories.Users
@@ -19,6 +21,8 @@ namespace ELib_IDSFintech_Internship.Repositories.Users
         public Task<ResponseType?> AddSubscription(AddSubscriptionRequest request);
 
         public new Task<(User?, string)> Create(User newObject);
+
+        public new Task<UserActionResponse?> Update(User modifiedObject);
 
     }
 }
