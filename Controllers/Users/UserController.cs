@@ -66,9 +66,9 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
                     return NotFound();
                 }
 
-                Response.Headers["x-session-id"] = sessionId;
+                Response.Headers.Append("x-session-id", sessionId);
 
-                return Ok(user);
+                return Ok(new { userData = user, status = ResponseType.ResponseSuccess, message = "User Signed in successfully" });
             }
             catch (Exception ex)
             {
