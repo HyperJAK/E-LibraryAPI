@@ -10,5 +10,9 @@ namespace ELib_IDSFintech_Internship.Repositories.Tools
         public Task<string?> GenerateSessionId(int userId);
 
         public Task<bool?> EqualSessionIds(SessionActionRequest request);
+
+        public Task<Session?> GetById(Session newObject);
+
+        public Task<int?> Delete(Session modifiedObject);
     }
 }

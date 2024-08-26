@@ -1,5 +1,6 @@
 ﻿using ELib_IDSFintech_Internship.Models.Common;
 using ELib_IDSFintech_Internship.Models.Tools;
+using ELib_IDSFintech_Internship.Models.Users;
 using ELib_IDSFintech_Internship.Services.Common;
 using ELib_IDSFintech_Internship.Services.Tools;
 using Microsoft.AspNetCore.Mvc;
@@ -71,6 +72,40 @@ namespace ELib_IDSFintech_Internship.Controllers.Tools
                 return StatusCode(500, "Internal server error");
             }
 
+        }
+
+        [HttpPost("api/generateSessionId")]
+        public async Task<IActionResult> GenerateSessionId(int userId)
+        {
+            var sessionId = await _service.GenerateSessionId(userId);
+
+            if (sessionId == null)
+            {
+                return StatusCode(500, "Failed to generate session ID.");
+            }
+
+            return Ok(new { SessionId = sessionId });
+        }
+
+        [HttpPost("api/compareSessionIds")]
+        public async Task<IActionResult> CompareSessionIds(SessionActionRequest request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.SessionID) || request.UserId <= 0)
+            {
+                return BadRequest("Invalid request.");
+            }
+
+            var isEqual = await _service.EqualSessionIds(request);
+
+            if (isEqual == null)
+            {
+                return StatusCode(500, "Failed to compare session IDs.");
+            }
+            else if (isEqual == false) {
+                return StatusCode(500, "Expired SessionID");
+            }
+
+            return Ok(new { IsEqual = isEqual });
         }
 
         [HttpGet("api/data/{id}")]
