@@ -6,7 +6,7 @@
 
         public Task<T?> GetById(int id);
 
-        public Task<int?> Create(T newObject);
+        public Task<T?> Create(T newObject);
 
         public Task<int?> Update(T modifiedObject);
 

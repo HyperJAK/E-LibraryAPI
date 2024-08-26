@@ -1,5 +1,8 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
+using ELib_IDSFintech_Internship.Models.Books.RequestPayloads;
+using ELib_IDSFintech_Internship.Models.Users.RequestPayloads;
 using ELib_IDSFintech_Internship.Services.Books;
+using ELib_IDSFintech_Internship.Services.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ELib_IDSFintech_Internship.Controllers.Books
@@ -47,21 +50,36 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
         }
 
         [HttpPost("api/create")]
-        public async Task<IActionResult> Create(Book newObject)
+        public async Task<IActionResult> Create([FromBody] BookActionRequest request)
         {
-            _logger.LogInformation($"Creating a {_logName}, Controller Layer");
-
             try
             {
-                var countCreated = await _service.Create(newObject);
-
-                if (countCreated == null || countCreated.Value <= 0)
+                //first thing we do is validate wether our object is valid based on the rules that we provided in the Class that it belongs to
+                if (ModelState.IsValid)
                 {
-                    _logger.LogWarning($"No {_logName} Updated");
-                    return NotFound();
+                    //if no SessionID in request
+                    if (request.SessionID == null)
+                    {
+                        return Ok(new { status = ResponseType.UserNotLoggedIn, message = "You are not logged in or Session expired please relogin" });
+                    }
+
+                    if (request.EntityObject != null)
+                    {
+                        _logger.LogInformation($"Creating a {_logName}, Controller Layer");
+                        var response = await _service.Create(request.EntityObject);
+
+                        return Ok(response);
+                    }
+                    else
+                    {
+                        return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to update" });
+                    }
+                }
+                else
+                {
+                    return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to update" });
                 }
 
-                return Ok(countCreated);
             }
             catch (Exception ex)
             {
@@ -96,23 +114,113 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
 
         }
 
-
-        [HttpPut("api/update")]
-        public async Task<IActionResult> Update(Book modifiedObject)
+        [HttpGet("api/getSuggestions/{name}")]
+        public async Task<IActionResult> GetSuggestionsByName(string name)
         {
-            _logger.LogInformation($"Updating a {_logName}, Controller Layer");
+            _logger.LogInformation($"Getting {_logName} suggestions with Name: {name}, Controller Layer");
 
             try
             {
-                var countUpdated = await _service.Update(modifiedObject);
+                var result = await _service.GetSuggestionsByName(name);
 
-                if (countUpdated == null || countUpdated.Value <= 0)
+                if (result == null)
                 {
-                    _logger.LogWarning($"No {_logName} Updated");
+                    _logger.LogWarning($"No {_logName} suggestions found");
                     return NotFound();
                 }
 
-                return Ok(countUpdated);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while getting {_logName} suggestions with Name: {name}, in Controller Layer");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
+        [HttpGet("api/getSearchResults/{name}")]
+        public async Task<IActionResult> GetSearchResultsByName(string name)
+        {
+            _logger.LogInformation($"Getting {_logName} search results with Name: {name}, Controller Layer");
+
+            try
+            {
+                var result = await _service.GetSearchResultsByName(name);
+
+                if (result == null)
+                {
+                    _logger.LogWarning($"No {_logName} search results found");
+                    return NotFound();
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while getting {_logName} search results with Name: {name}, in Controller Layer");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
+        [HttpGet("api/getBooksByGenre/{id}")]
+        public async Task<IActionResult> GetBooksByGenre(int id)
+        {
+            _logger.LogInformation($"Getting {_logName}s by Genre: {id}, Controller Layer");
+
+            try
+            {
+                var result = await _service.GetBooksByGenre(id);
+
+                if (result == null)
+                {
+                    _logger.LogWarning($"No {_logName} found in this genre");
+                    return NotFound();
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while getting {_logName}s by Genre: {id}, in Controller Layer");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
+
+        [HttpPut("api/update")]
+        public async Task<IActionResult> Update([FromBody] BookActionRequest request)
+        {
+            try
+            {
+                //first thing we do is validate wether our object is valid based on the rules that we provided in the Class that it belongs to
+                if (ModelState.IsValid)
+                {
+                    //if no SessionID in request
+                    if (request.SessionID == null)
+                    {
+                        return Ok(new { status = ResponseType.UserNotLoggedIn, message = "You are not logged in or Session expired please relogin" });
+                    }
+
+                    if (request.EntityObject != null)
+                    {
+                        _logger.LogInformation($"Updating a {_logName}, Controller Layer");
+                        var response = await _service.Update(request.EntityObject);
+
+                        return Ok(response);
+                    }
+                    else
+                    {
+                        return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to update" });
+                    }
+                }
+                else
+                {
+                    return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to update" });
+                }
+
             }
             catch (Exception ex)
             {
@@ -124,38 +232,53 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
 
 
         [HttpDelete("api/delete")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete([FromBody] BookActionRequest request)
         {
-            _logger.LogInformation($"Deleting a {_logName} with ID: {id}, Controller Layer");
-
             try
             {
-                var countDeleted = await _service.Delete(id);
-
-                if (countDeleted == null || countDeleted.Value <= 0)
+                //first thing we do is validate wether our object is valid based on the rules that we provided in the Class that it belongs to
+                if (ModelState.IsValid)
                 {
-                    _logger.LogWarning($"No {_logName} deleted");
-                    return NotFound();
+                    //if no SessionID in request
+                    if (request.SessionID == null)
+                    {
+                        return Ok(new { status = ResponseType.UserNotLoggedIn, message = "You are not logged in or Session expired please relogin" });
+                    }
+
+                    if (request.Id != null)
+                    {
+                        _logger.LogInformation($"Deleting a {_logName} with ID: {request.Id}, Controller Layer");
+                        var response = await _service.Delete((int)request.Id);
+
+                        return Ok(response);
+                    }
+                    else
+                    {
+                        return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to delete" });
+                    }
+                }
+                else
+                {
+                    return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to delete" });
                 }
 
-                return Ok(countDeleted);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"An error occurred while deleting {_logName} with ID: {id}");
+                _logger.LogError(ex, $"An error occurred while deleting {_logName}");
                 return StatusCode(500, "Internal server error");
             }
 
         }
 
         [HttpDelete("api/clearCache")]
-        public async Task<IActionResult> ClearCache()
+        public async Task<IActionResult> ClearCache(string key)
         {
             _logger.LogInformation($"Clearing all cached {_logName}s, Controller Layer");
 
             try
             {
-                var cleared = await _service.ClearCache();
+                var cleared = await _service.ClearCache(key);
 
                 if (!cleared.Value)
                 {
@@ -172,6 +295,31 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"An error occurred while clearing cached {_logName}s");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
+        [HttpGet("api/borrowedBooks/{userId}")]
+        public async Task<IActionResult> GetBorrowedBooks(int userId)
+        {
+            _logger.LogInformation($"Getting all {_logName}s borrowed by user with ID: {userId}, Controller Layer");
+
+            try
+            {
+                var result = await _service.GetBorrowedBooks(userId);
+
+                if (result == null)
+                {
+                    _logger.LogWarning($"No {_logName}s found");
+                    return NotFound();
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while getting all {_logName}s");
                 return StatusCode(500, "Internal server error");
             }
 

@@ -1,6 +1,13 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
+using ELib_IDSFintech_Internship.Models.Books.Authors;
+using ELib_IDSFintech_Internship.Models.Books.Formats;
+using ELib_IDSFintech_Internship.Models.Books.Genres;
+using ELib_IDSFintech_Internship.Models.Books.Locations;
+using ELib_IDSFintech_Internship.Models.Books.Tags;
 using ELib_IDSFintech_Internship.Models.Common;
 using ELib_IDSFintech_Internship.Models.Users;
+using ELib_IDSFintech_Internship.Models.Users.CreditCards;
+using ELib_IDSFintech_Internship.Models.Users.Subscriptions;
 
 namespace ELib_IDSFintech_Internship.Data
 {
@@ -317,7 +324,7 @@ namespace ELib_IDSFintech_Internship.Data
                 FullName = "John Doe",
                 CardNumber = "1234-5678-9012-3456",
                 BillingAddress = "1234 Elm Street, Springfield, USA",
-                ExpirationDate = new DateOnly(2025, 12, 31),
+                ExpirationDate = new DateTime(2025, 12, 31),
                 TimeStamp = DateTime.Now,
             };
 
@@ -326,7 +333,7 @@ namespace ELib_IDSFintech_Internship.Data
                 FullName = "Jane Smith",
                 CardNumber = "9876-5432-1098-7654",
                 BillingAddress = "5678 Oak Avenue, Metropolis, USA",
-                ExpirationDate = new DateOnly(2024, 6, 30),
+                ExpirationDate = new DateTime(2024, 6, 30),
                 TimeStamp = DateTime.Now,
             };
 
@@ -341,7 +348,21 @@ namespace ELib_IDSFintech_Internship.Data
                 Subscription = subscriptions[0],
                 SubscriptionStartDate = new DateOnly(2023, 8, 9),
                 SubscriptionEndDate = new DateOnly(2023, 9, 8),
-                Books = new List<Book> { book1 },
+                UserBooks = new List<UserHasBooks>
+                {
+                    new UserHasBooks
+                    {
+                        Book = book1,
+                        BorrowedDate = DateTime.Now,
+                        DueDate = DateTime.Now.AddDays(14)
+                    },
+                    new UserHasBooks
+                    {
+                        Book = book2,
+                        BorrowedDate = DateTime.Now,
+                        DueDate = DateTime.Now.AddDays(14)
+                    }
+                },
                 TimeStamp = DateTime.Now,
             };
 
@@ -355,7 +376,15 @@ namespace ELib_IDSFintech_Internship.Data
                 Subscription = subscriptions[1],
                 SubscriptionStartDate = new DateOnly(2023, 8, 9),
                 SubscriptionEndDate = new DateOnly(2023, 11, 7),
-                Books = new List<Book> { book2 },
+                UserBooks = new List<UserHasBooks>
+                {
+                    new UserHasBooks
+                    {
+                        Book = book2,
+                        BorrowedDate = DateTime.Now,
+                        DueDate = DateTime.Now.AddDays(14)
+                    }
+                },
                 TimeStamp = DateTime.Now,
             };
 

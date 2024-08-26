@@ -1,4 +1,10 @@
-﻿using ELib_IDSFintech_Internship.Models.Common;
+﻿using ELib_IDSFintech_Internship.Models.Books.Authors;
+using ELib_IDSFintech_Internship.Models.Books.Formats;
+using ELib_IDSFintech_Internship.Models.Books.Genres;
+using ELib_IDSFintech_Internship.Models.Books.Locations;
+using ELib_IDSFintech_Internship.Models.Books.Tags;
+using ELib_IDSFintech_Internship.Models.Common;
+using ELib_IDSFintech_Internship.Models.Users;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -29,7 +35,9 @@ namespace ELib_IDSFintech_Internship.Models.Books
         [MaxLength(500)]
         public string? DigitalBookURL { get; set; }
 
-        //Shelf B2 row 2 col 4 for example
+        //Location: Shelf B2 row 2 col 4 for example
+        public int? LocationId { get; set; }
+        [ForeignKey("LocationId")]
         public BookLocation? PhysicalBookLocation { get; set; }
 
         [MaxLength(100)]
@@ -50,6 +58,8 @@ namespace ELib_IDSFintech_Internship.Models.Books
         public ICollection<BookGenre>? Genres { get; set; } = new List<BookGenre>();
 
         public ICollection<BookTag>? Tags { get; set; } = new List<BookTag>();
+
+        public ICollection<UserHasBooks> UserBooks { get; set; } = new List<UserHasBooks>();
 
         //Author
         public int AuthorId { get; set; }

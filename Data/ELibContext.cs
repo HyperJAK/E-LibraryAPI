@@ -1,6 +1,14 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
+using ELib_IDSFintech_Internship.Models.Books.Authors;
+using ELib_IDSFintech_Internship.Models.Books.Formats;
+using ELib_IDSFintech_Internship.Models.Books.Genres;
+using ELib_IDSFintech_Internship.Models.Books.Locations;
+using ELib_IDSFintech_Internship.Models.Books.Tags;
 using ELib_IDSFintech_Internship.Models.Common;
 using ELib_IDSFintech_Internship.Models.Users;
+using ELib_IDSFintech_Internship.Models.Users.CreditCards;
+using ELib_IDSFintech_Internship.Models.Users.Sessions;
+using ELib_IDSFintech_Internship.Models.Users.Subscriptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace ELib_IDSFintech_Internship.Data
@@ -94,6 +102,34 @@ namespace ELib_IDSFintech_Internship.Data
                 .OnDelete(DeleteBehavior.Cascade),
                 j => j.HasOne<Book>().WithMany().HasForeignKey("BookId")
             );
+
+            //Forein key creation for Location, key is in books
+            modelBuilder.Entity<BookLocation>()
+            .HasMany(a => a.Books)
+            .WithOne(b => b.PhysicalBookLocation)
+            .HasForeignKey(b => b.LocationId);
+
+            modelBuilder.Entity<UserHasBooks>()
+        .HasKey(ub => new { ub.UserId, ub.BookId });
+
+            modelBuilder.Entity<UserHasBooks>()
+                .HasOne(ub => ub.User)
+                .WithMany(u => u.UserBooks)
+                .HasForeignKey(ub => ub.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserHasBooks>()
+                .HasOne(ub => ub.Book)
+                .WithMany(b => b.UserBooks)
+                .HasForeignKey(ub => ub.BookId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            //This is for the user's sessions
+            modelBuilder.Entity<Session>()
+                .HasOne(s => s.User)
+                .WithMany(u => u.Sessions)
+                .HasForeignKey(s => s.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         public DbSet<User> Users => Set<User>();
@@ -110,6 +146,8 @@ namespace ELib_IDSFintech_Internship.Data
         public DbSet<BookLocation> BookLocations => Set<BookLocation>();
 
         public DbSet<Language> Languages => Set<Language>();
+
+        public DbSet<Session> Sessions => Set<Session>();
 
     }
 }

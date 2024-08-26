@@ -1,6 +1,14 @@
-﻿using ELib_IDSFintech_Internship.Models.Users;
+﻿using ELib_IDSFintech_Internship.Models.Books;
+using ELib_IDSFintech_Internship.Models.Books.Authors.RequestPayloads;
+using ELib_IDSFintech_Internship.Models.Users;
+using ELib_IDSFintech_Internship.Models.Users.RequestPayloads;
+using ELib_IDSFintech_Internship.Models.Users.Sessions;
+using ELib_IDSFintech_Internship.Models.Users.Subscriptions;
+using ELib_IDSFintech_Internship.Services.Enums;
+using ELib_IDSFintech_Internship.Services.Tools;
 using ELib_IDSFintech_Internship.Services.Users;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
 
 namespace ELib_IDSFintech_Internship.Controllers.Users
 {
@@ -47,22 +55,71 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
 
         }
 
-        [HttpPost("api/create")]
-        public async Task<IActionResult> Create(User newObject)
+        [HttpPost("api/verifyUser")]
+        public async Task<IActionResult> VerifyUser([FromBody] VerificationRequest verificationObject)
         {
-            _logger.LogInformation($"Creating a {_logName}, Controller Layer");
+            _logger.LogInformation($"Verifying a {_logName}, Controller Layer");
 
             try
             {
-                var countCreated = await _service.Create(newObject);
+                //first thing we do is validate wether our object is valid based on the rules that we provided in the Class that it belongs to
 
-                if (countCreated == null || countCreated.Value <= 0)
+
+                    if (verificationObject.Email != null && verificationObject.Password != null)
+                    {
+                        _logger.LogInformation($"Creating a {_logName}, Controller Layer");
+                        var response = await _service.VerifyUser(verificationObject);
+
+                        if(response?.SessionID != null)
+                        {
+                            Response.Headers.Append("x-session-id", response.SessionID);
+                        }
+                       
+
+                        return Ok(response);
+                    }
+                    else
+                    {
+                        return Ok(new { status = ResponseType.FailedRequiredDataValidation, message = $"No credentials input detected" });
+                    }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while verifying a {_logName}");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
+        [HttpPost("api/create")]
+        public async Task<IActionResult> Create([FromBody] UserActionRequest request)
+        {
+            try
+            {
+                //first thing we do is validate wether our object is valid based on the rules that we provided in the Class that it belongs to
+                if (ModelState.IsValid)
                 {
-                    _logger.LogWarning($"No {_logName} Updated");
-                    return NotFound();
+
+                    if (request.EntityObject != null)
+                    {
+                        _logger.LogInformation($"Creating a {_logName}, Controller Layer");
+                        var response = await _service.Create(request.EntityObject);
+
+                        Response.Headers.Append("x-session-id", response.SessionID);
+
+                        return Ok(response);
+                    }
+                    else
+                    {
+                        return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to create" });
+                    }
+                }
+                else
+                {
+                    return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to create" });
                 }
 
-                return Ok(countCreated);
             }
             catch (Exception ex)
             {
@@ -99,21 +156,36 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
 
 
         [HttpPut("api/update")]
-        public async Task<IActionResult> Update(User modifiedObject)
+        public async Task<IActionResult> Update([FromBody] UserActionRequest request)
         {
-            _logger.LogInformation($"Updating a {_logName}, Controller Layer");
-
             try
             {
-                var countUpdated = await _service.Update(modifiedObject);
-
-                if (countUpdated == null || countUpdated.Value <= 0)
+                //first thing we do is validate wether our object is valid based on the rules that we provided in the Class that it belongs to
+                if (ModelState.IsValid)
                 {
-                    _logger.LogWarning($"No {_logName} Updated");
-                    return NotFound();
+                    //if no SessionID in request
+                    if (request.SessionID == null)
+                    {
+                        return Ok(new { status = ResponseType.UserNotLoggedIn, message = "You are not logged in or Session expired please relogin" });
+                    }
+
+                    if (request.EntityObject != null)
+                    {
+                        _logger.LogInformation($"Updating a {_logName}, Controller Layer");
+                        var response = await _service.Update(request.EntityObject);
+
+                        return Ok(response);
+                    }
+                    else
+                    {
+                        return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to update" });
+                    }
+                }
+                else
+                {
+                    return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to update" });
                 }
 
-                return Ok(countUpdated);
             }
             catch (Exception ex)
             {
@@ -125,25 +197,190 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
 
 
         [HttpDelete("api/delete")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete([FromBody] UserActionRequest request)
         {
-            _logger.LogInformation($"Deleting a {_logName} with ID: {id}, Controller Layer");
-
             try
             {
-                var countDeleted = await _service.Delete(id);
-
-                if (countDeleted == null || countDeleted.Value <= 0)
+                //first thing we do is validate wether our object is valid based on the rules that we provided in the Class that it belongs to
+                if (ModelState.IsValid)
                 {
-                    _logger.LogWarning($"No {_logName} deleted");
-                    return NotFound();
+                    //if no SessionID in request
+                    if (request.SessionID == null)
+                    {
+                        return Ok(new { status = ResponseType.UserNotLoggedIn, message = "You are not logged in or Session expired please relogin" });
+                    }
+
+                    if (request.Id != null)
+                    {
+                        _logger.LogInformation($"Deleting a {_logName} with ID: {request.Id}, Controller Layer");
+                        var response = await _service.Delete((int)request.Id);
+
+                        return Ok(response);
+                    }
+                    else
+                    {
+                        return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to delete" });
+                    }
+                }
+                else
+                {
+                    return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to delete" });
                 }
 
-                return Ok(countDeleted);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"An error occurred while deleting {_logName} with ID: {id}");
+                _logger.LogError(ex, $"An error occurred while updating {_logName}");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
+        [HttpPost("api/logout")]
+        public async Task<IActionResult> LogOut([FromBody] UserActionRequest request)
+        {
+            try
+            {
+                //first thing we do is validate wether our object is valid based on the rules that we provided in the Class that it belongs to
+                if (ModelState.IsValid)
+                {
+                    //if no SessionID in request
+                    if (request.SessionID == null)
+                    {
+                        return Ok(new { status = ResponseType.UserNotLoggedIn, message = "You are not logged in or Session expired please relogin" });
+                    }
+
+                    if (request.Id != null)
+                    {
+                        _logger.LogInformation($"Logging a {_logName} out with ID: {request.Id}, Controller Layer");
+                        var response = await _service.LogOut(request);
+
+                        return Ok(response);
+                    }
+                    else
+                    {
+                        return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to delete" });
+                    }
+                }
+                else
+                {
+                    return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to delete" });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while updating {_logName}");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
+        //prefferably replace userId with session id or with an object that takes both
+        [HttpPost("api/borrowBook")]
+        public async Task<IActionResult> BorrowBook(BorrowBookRequest request)
+        {
+            _logger.LogInformation($"Adding a book for a {_logName}, Controller Layer");
+
+            try
+            {
+                var result = await _service.BorrowBook(request);
+                
+                switch ((ResponseType)result)
+                {
+                    //Book out of stock
+                    case ResponseType.OutOfBook:
+                        {
+                            return Ok(new { status = ResponseType.OutOfBook, message = "Book out of stock" });
+                        }
+                    //User already borrowing book
+                    case ResponseType.UserAlreadyBorrow:
+                        {
+                            return Ok(new { status = ResponseType.UserAlreadyBorrow, message = "You are already borrowing this book" });
+                        }
+                    //subscription needed
+                    case ResponseType.SubscriptionNeeded:
+                        {
+                            return Ok(new { status = ResponseType.SubscriptionNeeded, message = "Subscription needed" });
+                        }
+
+                    //no book found
+                    case ResponseType.NoObjectFound:
+                        {
+                            return Ok(new { status = ResponseType.NoObjectFound, message = "Error, No such book was found" });
+                        }
+                        
+                        // no user found
+                    case ResponseType.UserNotLoggedIn:
+                        {
+                            return Ok(new { status = ResponseType.UserNotLoggedIn, message = "User was not found, please login" });
+                        }
+
+                    // Success
+                    case ResponseType.ResponseSuccess:
+                        {
+                            return Ok(new { status = ResponseType.ResponseSuccess, message = "Book was successfully borrowed" });
+                        }
+
+                    default:
+                        return BadRequest();
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while adding book to a {_logName}");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
+        //prefferably replace userId with session id or with an object that takes both
+        [HttpPost("api/addSubscription")]
+        public async Task<IActionResult> AddSubscription(SubscriptionActionRequest request)
+        {
+            _logger.LogInformation($"Adding a subscription for a {_logName}, Controller Layer");
+
+            try
+            {
+                var result = await _service.AddSubscription(request);
+
+                switch ((ResponseType)result)
+                {
+                    //User already subscribed
+                    case ResponseType.UserAlreadySubscribed:
+                        {
+                            return Ok(new { status = ResponseType.UserAlreadySubscribed, message = "You are already subscribed to this subscription" });
+                        }
+
+                    //no subscription found
+                    case ResponseType.NoObjectFound:
+                        {
+                            return Ok(new { status = ResponseType.NoObjectFound, message = "Error, Subscription not found" });
+                        }
+
+                    // no user found
+                    case ResponseType.UserNotLoggedIn:
+                        {
+                            return Ok(new { status = ResponseType.UserNotLoggedIn, message = "User was not found, please login" });
+                        }
+
+                    // Success
+                    case ResponseType.ResponseSuccess:
+                        {
+                            return Ok(new { status = ResponseType.ResponseSuccess, message = "Successfully subscribed" });
+                        }
+
+                    default:
+                        return BadRequest();
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while adding a subscription for a {_logName}");
                 return StatusCode(500, "Internal server error");
             }
 
