@@ -1,4 +1,5 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
+using ELib_IDSFintech_Internship.Models.Books.RequestPayloads;
 
 namespace ELib_IDSFintech_Internship.Repositories.Books
 {
@@ -19,6 +20,11 @@ namespace ELib_IDSFintech_Internship.Repositories.Books
         //This retrieves books that were borrowed by a specific user
         public Task<IEnumerable<Book>?> GetBorrowedBooks(int userId);
 
-        
+        public new Task<BookActionResponse?> Create(Book newObject);
+
+        public new Task<BookActionResponse?> Delete(int id);
+
+
+
     }
 }

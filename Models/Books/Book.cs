@@ -1,4 +1,9 @@
-﻿using ELib_IDSFintech_Internship.Models.Common;
+﻿using ELib_IDSFintech_Internship.Models.Books.Authors;
+using ELib_IDSFintech_Internship.Models.Books.Formats;
+using ELib_IDSFintech_Internship.Models.Books.Genres;
+using ELib_IDSFintech_Internship.Models.Books.Locations;
+using ELib_IDSFintech_Internship.Models.Books.Tags;
+using ELib_IDSFintech_Internship.Models.Common;
 using ELib_IDSFintech_Internship.Models.Users;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;

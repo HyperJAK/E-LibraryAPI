@@ -1,7 +1,14 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
+using ELib_IDSFintech_Internship.Models.Books.Authors;
+using ELib_IDSFintech_Internship.Models.Books.Formats;
+using ELib_IDSFintech_Internship.Models.Books.Genres;
+using ELib_IDSFintech_Internship.Models.Books.Locations;
+using ELib_IDSFintech_Internship.Models.Books.Tags;
 using ELib_IDSFintech_Internship.Models.Common;
-using ELib_IDSFintech_Internship.Models.Tools;
 using ELib_IDSFintech_Internship.Models.Users;
+using ELib_IDSFintech_Internship.Models.Users.CreditCards;
+using ELib_IDSFintech_Internship.Models.Users.Sessions;
+using ELib_IDSFintech_Internship.Models.Users.Subscriptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace ELib_IDSFintech_Internship.Data

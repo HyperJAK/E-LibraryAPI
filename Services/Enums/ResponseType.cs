@@ -8,7 +8,13 @@
         UserAlreadyBorrow = (int)434,
         ResponseSuccess = (int)200,
         UserAlreadySubscribed = (int)435,
-        OutOfBook = (int)436
+        OutOfBook = (int)436,
+        FailedRequiredDataValidation = (int)437,
+        FailedToUpdate = (int)438,
+        FailedToDelete = (int)439,
+        FailedToCreate = (int)440,
+        FailedToSignIn = (int)441,
+        FailedToLogOut = (int)442
 
     }
 }

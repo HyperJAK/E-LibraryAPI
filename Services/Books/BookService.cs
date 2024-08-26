@@ -1,5 +1,9 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
+using ELib_IDSFintech_Internship.Models.Books.RequestPayloads;
+using ELib_IDSFintech_Internship.Models.Users.RequestPayloads;
+using ELib_IDSFintech_Internship.Repositories;
 using ELib_IDSFintech_Internship.Repositories.Books;
+using ELib_IDSFintech_Internship.Services.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -24,9 +28,10 @@ namespace ELib_IDSFintech_Internship.Services.Books
         }
 
 
-        public async Task<Book?> Create(Book newObject)
+        public async Task<BookActionResponse?> Create(Book newObject)
         {
             _logger.LogInformation($"Creating a {_logName}, Service Layer");
+            var response = new BookActionResponse();
             try
             {
                 _context.Books.Add(newObject);
@@ -36,18 +41,37 @@ namespace ELib_IDSFintech_Internship.Services.Books
 
                 var getUpdated = await _context.Books.Where(x => x.Id == newObject.Id).FirstOrDefaultAsync();
 
-                return getUpdated;
+
+                //we prepare response based on the result
+                if (getUpdated != null)
+                {
+                    response.Status = (int)ResponseType.ResponseSuccess;
+                    response.Message = $"Successfully created the {_logName}";
+                    response.Book = getUpdated;
+                }
+                else
+                {
+                    response.Status = (int)ResponseType.FailedToCreate;
+                    response.Message = $"Failed to create the {_logName}";
+                    response.Book = getUpdated;
+                }
+
+                return response;
+
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Failed to create the {_logName}, in Service Layer");
                 throw ex;
             }
+
         }
 
-        public async Task<int?> Delete(int id)
+        public async Task<BookActionResponse?> Delete(int id)
         {
+
             _logger.LogInformation($"Deleting a {_logName}, Service Layer");
+            var response = new BookActionResponse();
             try
             {
                 var entity = await _context.Books.Where(x => x.Id == id).FirstOrDefaultAsync();
@@ -55,23 +79,40 @@ namespace ELib_IDSFintech_Internship.Services.Books
                 if (entity == null)
                 {
                     _logger.LogInformation($"No {_logName} found");
-                    return null;
+                    response.Status = (int)ResponseType.NoObjectFound;
+                    response.Message = $"Couldn't find a {_logName} with ID: {id}";
+                    return response;
                 }
                 _context.Books.Remove(entity);
 
-                //returns how many entries were deleted (should be 1 if it found the location that needs deleting)
-                var affectedItems = await _context.SaveChangesAsync();
+
+                //returns how many entries were updated (should be 1 if it found the location that needs updating)
+                var result = await _context.SaveChangesAsync();
+
 
                 //neccessairy to clear the cache after a delete
                 await ClearCache($"Book_{id}");
 
-                return affectedItems;
+                //we prepare response based on the result
+                if (result > 0)
+                {
+                    response.Status = (int)ResponseType.ResponseSuccess;
+                    response.Message = $"Successfully deleted the {_logName}";
+                }
+                else
+                {
+                    response.Status = (int)ResponseType.FailedToDelete;
+                    response.Message = $"Failed to delete the {_logName}";
+                }
+
+                return response;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Failed to delete the {_logName}, in Service Layer");
                 throw ex;
             }
+
         }
 
         public async Task<IEnumerable<Book>?> GetAll()
@@ -157,20 +198,37 @@ namespace ELib_IDSFintech_Internship.Services.Books
         }
 
 
-        public async Task<int?> Update(Book modifiedObject)
+        public async Task<BookActionResponse?> Update(Book modifiedObject)
         {
             _logger.LogInformation($"Updating a {_logName}, Service Layer");
+            var response = new BookActionResponse();
             try
             {
+                //clearing cache
+                await ClearCache($"Book_{modifiedObject.Id}");
+
                 _context.Entry(modifiedObject).State = EntityState.Modified;
 
                 //returns how many entries were updated (should be 1 if it found the location that needs updating)
-                var affectedItems = await _context.SaveChangesAsync();
+                var result = await _context.SaveChangesAsync();
+
 
                 //neccessairy to clear the cache after an update
                 await ClearCache($"Book_{modifiedObject.Id}");
-                
-                return affectedItems;
+
+                //we prepare response based on the result
+                if (result > 0)
+                {
+                    response.Status = (int)ResponseType.ResponseSuccess;
+                    response.Message = $"Successfully updated the {_logName}";
+                }
+                else
+                {
+                    response.Status = (int)ResponseType.FailedToUpdate;
+                    response.Message = $"Failed to update the {_logName}";
+                }
+
+                return response;
             }
             catch (Exception ex)
             {
@@ -352,6 +410,21 @@ namespace ELib_IDSFintech_Internship.Services.Books
                 _logger.LogError(ex, $"An error occurred while getting {_logName}s borrowed by user with ID: {userId}, in Services Layer");
                 throw ex;
             }
+        }
+
+        Task<Book?> IDefaultRepository<Book>.Create(Book newObject)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<int?> IDefaultRepository<Book>.Update(Book modifiedObject)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<int?> IDefaultRepository<Book>.Delete(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

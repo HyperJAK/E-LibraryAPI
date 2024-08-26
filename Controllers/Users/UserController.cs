@@ -1,5 +1,9 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
+using ELib_IDSFintech_Internship.Models.Books.Authors.RequestPayloads;
 using ELib_IDSFintech_Internship.Models.Users;
+using ELib_IDSFintech_Internship.Models.Users.RequestPayloads;
+using ELib_IDSFintech_Internship.Models.Users.Sessions;
+using ELib_IDSFintech_Internship.Models.Users.Subscriptions;
 using ELib_IDSFintech_Internship.Services.Enums;
 using ELib_IDSFintech_Internship.Services.Tools;
 using ELib_IDSFintech_Internship.Services.Users;
@@ -52,23 +56,33 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
         }
 
         [HttpPost("api/verifyUser")]
-        public async Task<IActionResult> VerifyUser(VerificationRequest verificationObject)
+        public async Task<IActionResult> VerifyUser([FromBody] VerificationRequest verificationObject)
         {
             _logger.LogInformation($"Verifying a {_logName}, Controller Layer");
 
             try
             {
-                var (user, sessionId) = await _service.VerifyUser(verificationObject);
+                //first thing we do is validate wether our object is valid based on the rules that we provided in the Class that it belongs to
 
-                if (user == null || sessionId == null)
-                {
-                    _logger.LogWarning($"No {_logName} to verify");
-                    return NotFound();
-                }
 
-                Response.Headers.Append("x-session-id", sessionId);
+                    if (verificationObject.Email != null && verificationObject.Password != null)
+                    {
+                        _logger.LogInformation($"Creating a {_logName}, Controller Layer");
+                        var response = await _service.VerifyUser(verificationObject);
 
-                return Ok(new { userData = user, status = ResponseType.ResponseSuccess, message = "User Signed in successfully" });
+                        if(response?.SessionID != null)
+                        {
+                            Response.Headers.Append("x-session-id", response.SessionID);
+                        }
+                       
+
+                        return Ok(response);
+                    }
+                    else
+                    {
+                        return Ok(new { status = ResponseType.FailedRequiredDataValidation, message = $"No credentials input detected" });
+                    }
+
             }
             catch (Exception ex)
             {
@@ -79,23 +93,33 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
         }
 
         [HttpPost("api/create")]
-        public async Task<IActionResult> Create(User newObject)
+        public async Task<IActionResult> Create([FromBody] UserActionRequest request)
         {
-            _logger.LogInformation($"Creating a {_logName}, Controller Layer");
-
             try
             {
-                var (user, sessionId) = await _service.Create(newObject);
-
-                if (user == null || sessionId == null)
+                //first thing we do is validate wether our object is valid based on the rules that we provided in the Class that it belongs to
+                if (ModelState.IsValid)
                 {
-                    _logger.LogWarning($"No {_logName} Updated");
-                    return NotFound();
+
+                    if (request.EntityObject != null)
+                    {
+                        _logger.LogInformation($"Creating a {_logName}, Controller Layer");
+                        var response = await _service.Create(request.EntityObject);
+
+                        Response.Headers.Append("x-session-id", response.SessionID);
+
+                        return Ok(response);
+                    }
+                    else
+                    {
+                        return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to create" });
+                    }
+                }
+                else
+                {
+                    return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to create" });
                 }
 
-                Response.Headers.Append("x-session-id", sessionId);
-
-                return Ok(new { userData = user, status = ResponseType.ResponseSuccess, message = "User created successfully" });
             }
             catch (Exception ex)
             {
@@ -132,23 +156,36 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
 
 
         [HttpPut("api/update")]
-        public async Task<IActionResult> Update(User modifiedObject)
+        public async Task<IActionResult> Update([FromBody] UserActionRequest request)
         {
-            _logger.LogInformation($"Updating a {_logName}, Controller Layer");
-
             try
             {
-                var countUpdated = await _service.Update(modifiedObject);
-
-                if (countUpdated > 0)
+                //first thing we do is validate wether our object is valid based on the rules that we provided in the Class that it belongs to
+                if (ModelState.IsValid)
                 {
-                    return Ok(new { status = 200, message = "user successfully updated" });
+                    //if no SessionID in request
+                    if (request.SessionID == null)
+                    {
+                        return Ok(new { status = ResponseType.UserNotLoggedIn, message = "You are not logged in or Session expired please relogin" });
+                    }
+
+                    if (request.EntityObject != null)
+                    {
+                        _logger.LogInformation($"Updating a {_logName}, Controller Layer");
+                        var response = await _service.Update(request.EntityObject);
+
+                        return Ok(response);
+                    }
+                    else
+                    {
+                        return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to update" });
+                    }
                 }
                 else
                 {
-                    _logger.LogWarning($"No {_logName} Updated");
-                    return Ok(new { status = 404, message = "Error, user couldn't be updated" });
+                    return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to update" });
                 }
+
             }
             catch (Exception ex)
             {
@@ -160,25 +197,80 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
 
 
         [HttpDelete("api/delete")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete([FromBody] UserActionRequest request)
         {
-            _logger.LogInformation($"Deleting a {_logName} with ID: {id}, Controller Layer");
-
             try
             {
-                var countDeleted = await _service.Delete(id);
-
-                if (countDeleted == null || countDeleted.Value <= 0)
+                //first thing we do is validate wether our object is valid based on the rules that we provided in the Class that it belongs to
+                if (ModelState.IsValid)
                 {
-                    _logger.LogWarning($"No {_logName} deleted");
-                    return NotFound();
+                    //if no SessionID in request
+                    if (request.SessionID == null)
+                    {
+                        return Ok(new { status = ResponseType.UserNotLoggedIn, message = "You are not logged in or Session expired please relogin" });
+                    }
+
+                    if (request.Id != null)
+                    {
+                        _logger.LogInformation($"Deleting a {_logName} with ID: {request.Id}, Controller Layer");
+                        var response = await _service.Delete((int)request.Id);
+
+                        return Ok(response);
+                    }
+                    else
+                    {
+                        return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to delete" });
+                    }
+                }
+                else
+                {
+                    return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to delete" });
                 }
 
-                return Ok(countDeleted);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"An error occurred while deleting {_logName} with ID: {id}");
+                _logger.LogError(ex, $"An error occurred while updating {_logName}");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
+        [HttpPost("api/logout")]
+        public async Task<IActionResult> LogOut([FromBody] UserActionRequest request)
+        {
+            try
+            {
+                //first thing we do is validate wether our object is valid based on the rules that we provided in the Class that it belongs to
+                if (ModelState.IsValid)
+                {
+                    //if no SessionID in request
+                    if (request.SessionID == null)
+                    {
+                        return Ok(new { status = ResponseType.UserNotLoggedIn, message = "You are not logged in or Session expired please relogin" });
+                    }
+
+                    if (request.Id != null)
+                    {
+                        _logger.LogInformation($"Logging a {_logName} out with ID: {request.Id}, Controller Layer");
+                        var response = await _service.LogOut(request);
+
+                        return Ok(response);
+                    }
+                    else
+                    {
+                        return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to delete" });
+                    }
+                }
+                else
+                {
+                    return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} to delete" });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while updating {_logName}");
                 return StatusCode(500, "Internal server error");
             }
 
@@ -246,7 +338,7 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
 
         //prefferably replace userId with session id or with an object that takes both
         [HttpPost("api/addSubscription")]
-        public async Task<IActionResult> AddSubscription(AddSubscriptionRequest request)
+        public async Task<IActionResult> AddSubscription(SubscriptionActionRequest request)
         {
             _logger.LogInformation($"Adding a subscription for a {_logName}, Controller Layer");
 

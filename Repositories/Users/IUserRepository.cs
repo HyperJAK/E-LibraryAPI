@@ -1,5 +1,7 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
 using ELib_IDSFintech_Internship.Models.Users;
+using ELib_IDSFintech_Internship.Models.Users.RequestPayloads;
+using ELib_IDSFintech_Internship.Models.Users.Subscriptions;
 using ELib_IDSFintech_Internship.Services.Enums;
 
 namespace ELib_IDSFintech_Internship.Repositories.Users
@@ -10,15 +12,21 @@ namespace ELib_IDSFintech_Internship.Repositories.Users
         public Task<bool?> ClearCache(string key);
 
         //This signs in user and returns his data
-        public Task<(User?, string)> VerifyUser(VerificationRequest verificationObject);
+        public Task<UserActionResponse?> VerifyUser(VerificationRequest verificationObject);
 
         //this lets user borrow a book
         public Task<ResponseType?> BorrowBook(BorrowBookRequest request);
 
         //this lets user assign a subscription
-        public Task<ResponseType?> AddSubscription(AddSubscriptionRequest request);
+        public Task<ResponseType?> AddSubscription(SubscriptionActionRequest request);
 
-        public new Task<(User?, string)> Create(User newObject);
+        public new Task<UserActionResponse?> Create(User newObject);
+
+        public new Task<UserActionResponse?> Update(User modifiedObject);
+
+        public new Task<UserActionResponse?> Delete(int id);
+
+        public Task<UserActionResponse?> LogOut(UserActionRequest request);
 
     }
 }
