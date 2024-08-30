@@ -24,14 +24,14 @@
 
 
             //if both arent present
-            if (property1Value == null && property2Value == null)
+            if (property1Value == null && property2Value == null && property3Value == null)
             {
-                return new ValidationResult($"Either {_property1} or {_property2} must be provided.");
+                return new ValidationResult($"Either {_property1} or {_property2} or {_property3} must be provided.");
             }
             //if both are present, we dont want both also
-            else if( property1Value != null && property2Value != null)
+            else if( property1Value != null && property2Value != null && property3Value != null)
             {
-                return new ValidationResult($"Either {_property1} or {_property2} must be removed.");
+                return new ValidationResult($"Either {_property1} or {_property2} or {_property3} must be removed.");
             }
 
             return ValidationResult.Success;

@@ -9,6 +9,9 @@ namespace ELib_IDSFintech_Internship.Models.Books.RequestPayloads
     [ValidateOne("EntityObject", "Id", "SessionID")]
     public class BookActionRequest : IBookActionRequestRepository
     {
+        public int? UserId { get; set; }
+        public int? BookId { get; set; }
+
         private string _sessionID;
         private Book? _entityObject;
         private int? _id;
@@ -30,6 +33,5 @@ namespace ELib_IDSFintech_Internship.Models.Books.RequestPayloads
             get => _sessionID;
             set => _sessionID = value;
         }
-       
     }
 }

@@ -1,9 +1,37 @@
-﻿namespace ELib_IDSFintech_Internship.Models.Users
+﻿using ELib_IDSFintech_Internship.Models.Books;
+using ELib_IDSFintech_Internship.Models.Books.Authors;
+using ELib_IDSFintech_Internship.Models.Tools;
+using ELib_IDSFintech_Internship.Repositories.Books;
+using ELib_IDSFintech_Internship.Repositories.Users;
+
+namespace ELib_IDSFintech_Internship.Models.Users
 {
-    public class BorrowBookRequest
+    [ValidateOne("SessionID", "EntityObject", "Id")]
+    public class BorrowBookRequest : IBookActionRequestRepository
     {
-        public required int UserId { get; set; }
-        public required int BookId { get; set; }
-        public string? SessionId { get; set; }
+        public int? UserId { get; set; }
+        public int? BookId { get; set; }
+
+        private string? _sessionID;
+        private Book? _entityObject;
+        private int? _id;
+
+        public Book? EntityObject
+        {
+            get => _entityObject;
+            set => _entityObject = value;
+        }
+
+        public int? Id
+        {
+            get => _id;
+            set => _id = value;
+        }
+
+        public string? SessionID
+        {
+            get => _sessionID;
+            set => _sessionID = value;
+        }
     }
 }

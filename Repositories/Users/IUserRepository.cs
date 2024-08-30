@@ -1,4 +1,5 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
+using ELib_IDSFintech_Internship.Models.Books.RequestPayloads;
 using ELib_IDSFintech_Internship.Models.Users;
 using ELib_IDSFintech_Internship.Models.Users.RequestPayloads;
 using ELib_IDSFintech_Internship.Models.Users.Subscriptions;
@@ -15,7 +16,10 @@ namespace ELib_IDSFintech_Internship.Repositories.Users
         public Task<UserActionResponse?> VerifyUser(VerificationRequest verificationObject);
 
         //this lets user borrow a book
-        public Task<ResponseType?> BorrowBook(BorrowBookRequest request);
+        public Task<BookActionResponse?> BorrowBook(BorrowBookRequest request);
+
+        //this lets user unborrow a book
+        public Task<BookActionResponse?> UnborrowBook(BorrowBookRequest request);
 
         //this lets user assign a subscription
         public Task<ResponseType?> AddSubscription(SubscriptionActionRequest request);

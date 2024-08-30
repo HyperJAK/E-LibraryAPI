@@ -2,7 +2,14 @@
 {
     public class SessionActionRequest
     {
-        public required int UserId { get; set; }
-        public required string SessionID { get; set; }
+        private int _userId;
+        private string _sessionId;
+
+        public SessionActionRequest(int userId, string sessionid) {
+            UserId = userId;
+            SessionID = sessionid;
+        }
+        public int UserId { get => _userId; set => _userId = value; }
+        public string SessionID { get => _sessionId; set => _sessionId = value; }
     }
 }

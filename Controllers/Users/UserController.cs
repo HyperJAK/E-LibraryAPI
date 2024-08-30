@@ -278,59 +278,87 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
 
         //prefferably replace userId with session id or with an object that takes both
         [HttpPost("api/borrowBook")]
-        public async Task<IActionResult> BorrowBook(BorrowBookRequest request)
+        public async Task<IActionResult> BorrowBook([FromBody] BorrowBookRequest request)
         {
             _logger.LogInformation($"Adding a book for a {_logName}, Controller Layer");
 
             try
             {
-                var result = await _service.BorrowBook(request);
-                
-                switch ((ResponseType)result)
+
+                //first thing we do is validate wether our object is valid based on the rules that we provided in the Class that it belongs to
+                if (ModelState.IsValid)
                 {
-                    //Book out of stock
-                    case ResponseType.OutOfBook:
-                        {
-                            return Ok(new { status = ResponseType.OutOfBook, message = "Book out of stock" });
-                        }
-                    //User already borrowing book
-                    case ResponseType.UserAlreadyBorrow:
-                        {
-                            return Ok(new { status = ResponseType.UserAlreadyBorrow, message = "You are already borrowing this book" });
-                        }
-                    //subscription needed
-                    case ResponseType.SubscriptionNeeded:
-                        {
-                            return Ok(new { status = ResponseType.SubscriptionNeeded, message = "Subscription needed" });
-                        }
+                    //if no SessionID in request
+                    if (request.SessionID == null)
+                    {
+                        return Ok(new { status = ResponseType.UserNotLoggedIn, message = "You are not logged in or Session expired please relogin" });
+                    }
 
-                    //no book found
-                    case ResponseType.NoObjectFound:
-                        {
-                            return Ok(new { status = ResponseType.NoObjectFound, message = "Error, No such book was found" });
-                        }
-                        
-                        // no user found
-                    case ResponseType.UserNotLoggedIn:
-                        {
-                            return Ok(new { status = ResponseType.UserNotLoggedIn, message = "User was not found, please login" });
-                        }
+                    if (request.UserId != null && request.BookId != null)
+                    {
+                        _logger.LogInformation($"Unborrowing a Book with ID: {request.BookId}, Controller Layer");
+                        var response = await _service.BorrowBook(request);
 
-                    // Success
-                    case ResponseType.ResponseSuccess:
-                        {
-                            return Ok(new { status = ResponseType.ResponseSuccess, message = "Book was successfully borrowed" });
-                        }
-
-                    default:
-                        return BadRequest();
-
+                        return Ok(response);
+                    }
+                    else
+                    {
+                        return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} or a Book" });
+                    }
                 }
+                else
+                {
+                    return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} or a Book" });
+                }
+
 
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"An error occurred while adding book to a {_logName}");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
+
+        [HttpPost("api/unborrowBook")]
+        public async Task<IActionResult> UnborrowBook([FromBody] BorrowBookRequest request)
+        {
+            _logger.LogInformation($"Unborrowing a book from a {_logName}, Controller Layer");
+
+            try
+            {
+                //first thing we do is validate wether our object is valid based on the rules that we provided in the Class that it belongs to
+                if (ModelState.IsValid)
+                {
+                    //if no SessionID in request
+                    if (request.SessionID == null)
+                    {
+                        return Ok(new { status = ResponseType.UserNotLoggedIn, message = "You are not logged in or Session expired please relogin" });
+                    }
+
+                    if (request.UserId != null && request.BookId != null)
+                    {
+                        _logger.LogInformation($"Unborrowing a Book with ID: {request.BookId}, Controller Layer");
+                        var response = await _service.UnborrowBook(request);
+
+                        return Ok(response);
+                    }
+                    else
+                    {
+                        return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} or a Book" });
+                    }
+                }
+                else
+                {
+                    return Ok(new { status = ResponseType.NoObjectFound, message = $"The request didn't include an {_logName} or a Book" });
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while unborrowing a book from a {_logName}");
                 return StatusCode(500, "Internal server error");
             }
 

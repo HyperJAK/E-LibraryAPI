@@ -39,11 +39,13 @@ namespace ELib_IDSFintech_Internship.Services.Users
             _bookService = bookService;
             _sessionManager = sessionManager;
         }
+        
 
         //need to add more checks later for user and session ID
-        public async Task<ResponseType?> BorrowBook(BorrowBookRequest request)
+        public async Task<BookActionResponse?> BorrowBook(BorrowBookRequest request)
         {
             _logger.LogInformation($"Borrowing a {_logName}, Service Layer");
+            var response = new BookActionResponse();
             try
             {
                 var user = await _context.Users.Where(u => u.Id == request.UserId).Include(l => l.Subscription).Include(b => b.UserBooks).ThenInclude(b => b.Book).FirstOrDefaultAsync();
@@ -52,12 +54,18 @@ namespace ELib_IDSFintech_Internship.Services.Users
                 if (user == null)
                 {
                     _logger.LogInformation($"No {_logName} found");
-                    return ResponseType.UserNotLoggedIn;
+                    response.Status = (int)ResponseType.NoObjectFound;
+                    response.Message = $"No {_logName} found";
+
+                    return response;
                 }
                 if (latestBook == null)
                 {
                     _logger.LogInformation($"No Book found");
-                    return ResponseType.NoObjectFound;
+                    response.Status = (int)ResponseType.NoObjectFound;
+                    response.Message = $"No Book found";
+
+                    return response;
                 }
                 else
                 {
@@ -65,7 +73,10 @@ namespace ELib_IDSFintech_Internship.Services.Users
                     if(latestBook.PhysicalBookAvailability == false && latestBook.Type == "Physical")
                     {
                         _logger.LogInformation($"Not enough books");
-                        return ResponseType.OutOfBook;
+                        response.Status = (int)ResponseType.OutOfBook;
+                        response.Message = $"Not enough books";
+
+                        return response;
                     }
                     else
                     {
@@ -74,94 +85,232 @@ namespace ELib_IDSFintech_Internship.Services.Users
                 }
                 if (user.UserBooks.Any(ub => ub.Book.Id == latestBook.Id)) 
                 {
-                    _logger.LogInformation($"User is already borrowing this {_logName}");
-                    return ResponseType.UserAlreadyBorrow;
+                    _logger.LogInformation($"User is already borrowing this Book");
+                    response.Status = (int)ResponseType.UserAlreadyBorrow;
+                    response.Message = $"User is already borrowing this book";
+
+                    return response;
                 }
                 if (user.Subscription == null)
                 {
                     _logger.LogInformation($"No {_logName} subscription found");
-                    return ResponseType.SubscriptionNeeded;
+                    response.Status = (int)ResponseType.SubscriptionNeeded;
+                    response.Message = $"No {_logName} subscription found";
+
+                    return response;
                 }
 
-                //preparing return date
-                var returnDate = DateTime.Now;
-                switch (user.Subscription.Type)
+                //Here we compare session IDs
+                var session = new SessionActionRequest((int)request.UserId, request.SessionID);
+                var sessionId = await _sessionManager.EqualSessionIds(session);
+
+                //we prepare response based on the result
+                if ((bool)sessionId && sessionId != null)
                 {
-                    case "None":
-                        returnDate = DateTime.Now;
-                        break;
-
-                    case "Basic":
-                        returnDate = DateTime.Now.AddDays(14);
-                        break;
-
-                    case "Advanced":
-                        returnDate = DateTime.Now.AddDays(60);
-                        break;
-
-                    case "Premium":
-                        returnDate = DateTime.MaxValue;
-                        break;
-
-                }
-
-                if (latestBook.Type == "Physical")
-                {
-                    var newBorrow = new UserHasBooks
+                    //preparing return date
+                    var returnDate = DateTime.Now;
+                    switch (user.Subscription.Type)
                     {
-                        UserId = user.Id,
-                        BookId = latestBook.Id,
-                        BorrowedDate = DateTime.Now,
-                        DueDate = returnDate
+                        case "None":
+                            returnDate = DateTime.Now;
+                            break;
 
-                    };
+                        case "Basic":
+                            returnDate = DateTime.Now.AddDays(14);
+                            break;
 
-                    user.UserBooks.Add(newBorrow);
+                        case "Advanced":
+                            returnDate = DateTime.Now.AddDays(60);
+                            break;
 
-                    latestBook.PhysicalBookCount--;
+                        case "Premium":
+                            returnDate = DateTime.MaxValue;
+                            break;
 
-                    if(latestBook.PhysicalBookCount == 0)
-                    {
-                        latestBook.PhysicalBookAvailability = false;
                     }
 
-                    _context.Entry(latestBook).State = EntityState.Modified;
+                    if (latestBook.Type == "Physical")
+                    {
+                        var newBorrow = new UserHasBooks
+                        {
+                            UserId = user.Id,
+                            BookId = latestBook.Id,
+                            BorrowedDate = DateTime.Now,
+                            DueDate = returnDate
 
-                    //we also need to clear the cache of the book because we updated its availability / quantity
-                    await _bookService.ClearCache($"Book_{request.BookId}");
+                        };
 
+                        user.UserBooks.Add(newBorrow);
+
+                        latestBook.PhysicalBookCount--;
+
+                        if (latestBook.PhysicalBookCount == 0)
+                        {
+                            latestBook.PhysicalBookAvailability = false;
+                        }
+
+                        _context.Entry(latestBook).State = EntityState.Modified;
+
+                        //we also need to clear the cache of the book because we updated its availability / quantity
+                        await _bookService.ClearCache($"Book_{request.BookId}");
+
+                    }
+                    else
+                    {
+                        var newBorrow = new UserHasBooks
+                        {
+                            UserId = user.Id,
+                            BookId = latestBook.Id,
+                            BorrowedDate = DateTime.Now,
+                            DueDate = returnDate
+
+                        };
+
+                        user.UserBooks.Add(newBorrow);
+                    }
+                    //clearing cache
+                    await ClearCache($"User_{user.Id}");
+
+
+                    //returns how many entries were Created (should be 1)
+                    var count = await _context.SaveChangesAsync();
+
+                    if (count > 0)
+                    {
+                        response.Status = (int)ResponseType.ResponseSuccess;
+                        response.Message = $"Successfully borrowed book";
+
+                        return response;
+                    }
+                    else
+                    {
+                        response.Status = (int)ResponseType.FailedToCreate;
+                        response.Message = $"Failed to unborrow the book from the {_logName}";
+
+                        return response;
+                    }
                 }
                 else
                 {
-                    var newBorrow = new UserHasBooks
-                    {
-                        UserId = user.Id,
-                        BookId = latestBook.Id,
-                        BorrowedDate = DateTime.Now,
-                        DueDate = returnDate
+                    response.Status = (int)ResponseType.FailedToCreate;
+                    response.Message = $"Failed to unborrow the book from the {_logName}";
 
-                    };
-
-                    user.UserBooks.Add(newBorrow);
-                }
-                //clearing cache
-                await ClearCache($"User_{user.Id}");
-
-
-                //returns how many entries were Created (should be 1)
-                var count = await _context.SaveChangesAsync();
-
-                if(count > 0)
-                {
-                    return ResponseType.ResponseSuccess;
+                    return response;
                 }
 
-                return null;
+                    
 
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Failed to borrow the {_logName}, in Service Layer");
+                throw ex;
+            }
+        }
+
+        //need to add more checks later for user and session ID
+        public async Task<BookActionResponse?> UnborrowBook(BorrowBookRequest request)
+        {
+            _logger.LogInformation($"Unborrowing a {_logName}, Service Layer");
+            var response = new BookActionResponse();
+            try
+            {
+                var user = await _context.Users.Where(u => u.Id == request.UserId).Include(l => l.Subscription).Include(b => b.UserBooks).ThenInclude(b => b.Book).FirstOrDefaultAsync();
+                var book = await _context.Books.Where(u => u.Id == request.BookId).FirstOrDefaultAsync();
+                var latestUserBook = user.UserBooks.Where(user => user.UserId == request.UserId && user.BookId == request.BookId).FirstOrDefault();
+
+                var count = 0;
+
+
+                if (user == null)
+                {
+                    _logger.LogInformation($"No {_logName} found");
+                    response.Status = (int)ResponseType.NoObjectFound;
+                    response.Message = $"No {_logName} found";
+
+                    return response;
+                }
+                if(book == null)
+                {
+                    _logger.LogInformation($"No Book found");
+                    response.Status = (int)ResponseType.NoObjectFound;
+                    response.Message = $"No book found";
+
+                    return response;
+                }
+                if (latestUserBook == null)
+                {
+                    _logger.LogInformation($"No UserBook found");
+                    response.Status = (int)ResponseType.NoObjectFound;
+                    response.Message = $"No userbook found";
+
+                    return response;
+                }
+
+                //Here we compare session IDs
+                var session = new SessionActionRequest((int)request.UserId, request.SessionID);
+                var sessionId = await _sessionManager.EqualSessionIds(session);
+
+                //we prepare response based on the result
+                if ((bool)sessionId && sessionId != null)
+                {
+                    if (book.Type == "Physical")
+                    {
+
+                        book.PhysicalBookCount++;
+
+                        if (book.PhysicalBookCount >= 1)
+                        {
+                            book.PhysicalBookAvailability = true;
+                        }
+
+                        _context.Entry(book).State = EntityState.Modified;
+
+                        //we also need to clear the cache of the book because we updated its availability / quantity
+                        await _bookService.ClearCache($"Book_{request.BookId}");
+
+                        count = await _context.SaveChangesAsync();
+
+                        user.UserBooks.Remove(latestUserBook);
+                    }
+                    else
+                    {
+                        user.UserBooks.Remove(latestUserBook);
+                    }
+                    //clearing cache
+                    await ClearCache($"User_{user.Id}");
+
+
+                    //returns how many entries were Created (should be 1)
+                    count = await _context.SaveChangesAsync();
+
+                    if (count > 0)
+                    {
+                        response.Status = (int)ResponseType.ResponseSuccess;
+                        response.Message = $"Successfully unborrowed the book from the {_logName}";
+                        return response;
+
+                    }
+                    else
+                    {
+                        response.Status = (int)ResponseType.FailedToCreate;
+                        response.Message = $"Failed to unborrow the book from the {_logName}";
+                        return response;
+                    }
+                }
+                else
+                {
+                    response.Status = (int)ResponseType.FailedToCreate;
+                    response.Message = $"Failed to unborrow the book from the {_logName}";
+                    return response;
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to unborrow the {_logName}, in Service Layer");
                 throw ex;
             }
         }
