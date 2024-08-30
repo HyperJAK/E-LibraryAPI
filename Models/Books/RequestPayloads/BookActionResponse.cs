@@ -8,5 +8,6 @@ namespace ELib_IDSFintech_Internship.Models.Books.RequestPayloads
         public int Status { get; set; }
         public string? Message { get; set; }
         public Book? Book { get; set; }
+        public User? User { get; set; }
     }
 }

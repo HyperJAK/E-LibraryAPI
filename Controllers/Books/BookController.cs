@@ -278,7 +278,7 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
 
             try
             {
-                var cleared = await _service.ClearCache(key);
+                var cleared = await _service.ClearCache($"Book_{key}");
 
                 if (!cleared.Value)
                 {

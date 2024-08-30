@@ -151,9 +151,6 @@ namespace ELib_IDSFintech_Internship.Services.Users
 
                         _context.Entry(latestBook).State = EntityState.Modified;
 
-                        //we also need to clear the cache of the book because we updated its availability / quantity
-                        await _bookService.ClearCache($"Book_{request.BookId}");
-
                     }
                     else
                     {
@@ -168,17 +165,24 @@ namespace ELib_IDSFintech_Internship.Services.Users
 
                         user.UserBooks.Add(newBorrow);
                     }
-                    //clearing cache
-                    await ClearCache($"User_{user.Id}");
-
 
                     //returns how many entries were Created (should be 1)
                     var count = await _context.SaveChangesAsync();
+
+                    //clearing cache
+                    await ClearCache($"User_{user.Id}");
+                    //we also need to clear the cache of the book because we updated its availability / quantity
+                    await _bookService.ClearCache($"Book_{request.BookId}");
+
+                    var user2 = await _context.Users.Where(u => u.Id == request.UserId).Include(l => l.Subscription).Include(b => b.UserBooks).ThenInclude(b => b.Book).FirstOrDefaultAsync();
+                    var book2 = await _context.Books.Where(u => u.Id == request.BookId).FirstOrDefaultAsync();
+
 
                     if (count > 0)
                     {
                         response.Status = (int)ResponseType.ResponseSuccess;
                         response.Message = $"Successfully borrowed book";
+                        response.User = user2;
 
                         return response;
                     }
@@ -252,7 +256,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
                 var sessionId = await _sessionManager.EqualSessionIds(session);
 
                 //we prepare response based on the result
-                if ((bool)sessionId && sessionId != null)
+                if (sessionId.GetValueOrDefault() && sessionId != null)
                 {
                     if (book.Type == "Physical")
                     {
@@ -266,9 +270,6 @@ namespace ELib_IDSFintech_Internship.Services.Users
 
                         _context.Entry(book).State = EntityState.Modified;
 
-                        //we also need to clear the cache of the book because we updated its availability / quantity
-                        await _bookService.ClearCache($"Book_{request.BookId}");
-
                         count = await _context.SaveChangesAsync();
 
                         user.UserBooks.Remove(latestUserBook);
@@ -277,17 +278,27 @@ namespace ELib_IDSFintech_Internship.Services.Users
                     {
                         user.UserBooks.Remove(latestUserBook);
                     }
-                    //clearing cache
-                    await ClearCache($"User_{user.Id}");
-
 
                     //returns how many entries were Created (should be 1)
                     count = await _context.SaveChangesAsync();
+
+
+                    //clearing cache
+                    await ClearCache($"User_{user.Id}");
+                    //we also need to clear the cache of the book because we updated its availability / quantity
+                    await _bookService.ClearCache($"Book_{request.BookId}");
+
+                    var user2 = await _context.Users.Where(u => u.Id == request.UserId).Include(l => l.Subscription).Include(b => b.UserBooks).ThenInclude(b => b.Book).FirstOrDefaultAsync();
+                    var book2 = await _context.Books.Where(u => u.Id == request.BookId).FirstOrDefaultAsync();
+
+
+                    
 
                     if (count > 0)
                     {
                         response.Status = (int)ResponseType.ResponseSuccess;
                         response.Message = $"Successfully unborrowed the book from the {_logName}";
+                        response.User = user2;
                         return response;
 
                     }
@@ -469,6 +480,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
         {
             _logger.LogInformation($"Getting a single {_logName} using his ID: {id}, Service Layer");
 
+
             var cacheKey = $"User_${id}";
 
             try
@@ -507,9 +519,9 @@ namespace ELib_IDSFintech_Internship.Services.Users
 
                     //Setting behavior of the cached items after a certain passed time
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromSeconds(30))
+                        .SetSlidingExpiration(TimeSpan.FromSeconds(30))
                     .SetAbsoluteExpiration(TimeSpan.FromMinutes(5))
-                    .SetPriority(CacheItemPriority.Normal);
+                    .SetPriority(CacheItemPriority.Low);
 
                     _memoryCache.Set(cacheKey, cachedUser, cacheEntryOptions);
 
@@ -649,7 +661,9 @@ namespace ELib_IDSFintech_Internship.Services.Users
 
                 _logger.LogInformation($"Cleared all cached {_logName}s");
 
-                return Task.FromResult<bool?>(true);
+                var resp = Task.FromResult<bool?>(true);
+
+                return resp;
             }
             catch (Exception ex)
             {

@@ -183,7 +183,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
                     .SetSlidingExpiration(TimeSpan.FromSeconds(30))
                     .SetAbsoluteExpiration(TimeSpan.FromMinutes(5))
-                    .SetPriority(CacheItemPriority.Normal);
+                    .SetPriority(CacheItemPriority.Low);
 
                     _memoryCache.Set(cacheKey, book, cacheEntryOptions);
                 }
