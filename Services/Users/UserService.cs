@@ -485,16 +485,16 @@ namespace ELib_IDSFintech_Internship.Services.Users
 
             try
             {
-                if (_memoryCache.TryGetValue(cacheKey, out User? cachedUser))
+                /*if (_memoryCache.TryGetValue(cacheKey, out User? cachedUser))
                 {
                     _logger.LogInformation($"{_logName} retrieved from cache");
                     return cachedUser;
                 }
                 else
-                {
+                {*/
                     _logger.LogInformation($"{_logName}s not found in cache");
 
-                     cachedUser = await _context.Users.Where(l => l.Id == id)
+                     var cachedUser = await _context.Users.Where(l => l.Id == id)
                         .Include(u => u.Subscription)
                         .Include(u => u.CreditCard)
                         .Include(u => u.UserBooks)
@@ -517,16 +517,16 @@ namespace ELib_IDSFintech_Internship.Services.Users
                         .ThenInclude(b => b.Tags).FirstOrDefaultAsync();
 
 
-                    //Setting behavior of the cached items after a certain passed time
+                    /*//Setting behavior of the cached items after a certain passed time
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
                         .SetSlidingExpiration(TimeSpan.FromSeconds(30))
                     .SetAbsoluteExpiration(TimeSpan.FromMinutes(5))
                     .SetPriority(CacheItemPriority.Low);
 
-                    _memoryCache.Set(cacheKey, cachedUser, cacheEntryOptions);
+                    _memoryCache.Set(cacheKey, cachedUser, cacheEntryOptions);*/
 
                     return cachedUser;
-                }
+                /*}*/
  
             }
             catch (Exception ex)
