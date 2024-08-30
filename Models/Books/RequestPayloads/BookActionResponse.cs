@@ -1,9 +1,9 @@
 ﻿using ELib_IDSFintech_Internship.Models.Users;
-using ELib_IDSFintech_Internship.Repositories.Books;
+using ELib_IDSFintech_Internship.Repositories.Books.RequestPayloads;
 
 namespace ELib_IDSFintech_Internship.Models.Books.RequestPayloads
 {
-    public class BookActionResponse : IBookActionResponseRepository
+    public class BookActionResponse : IBookActionResponse
     {
         public int Status { get; set; }
         public string? Message { get; set; }

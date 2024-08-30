@@ -1,7 +1,6 @@
 ﻿using ELib_IDSFintech_Internship.Models.Books;
-using ELib_IDSFintech_Internship.Models.Users.CreditCards;
-using ELib_IDSFintech_Internship.Models.Users.Sessions;
-using ELib_IDSFintech_Internship.Models.Users.Subscriptions;
+using ELib_IDSFintech_Internship.Models.Sessions;
+using ELib_IDSFintech_Internship.Models.Users.RequestPayloads;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;

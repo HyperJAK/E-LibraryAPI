@@ -11,14 +11,14 @@ namespace ELib_IDSFintech_Internship.Controllers.Books
     [Route("[controller]")]
     public class BookController : ControllerBase
     {
-        private readonly BookService _service;
+        private readonly BookRepository _service;
         private readonly ILogger<BookController> _logger;
 
         //conveniently used when was copy pasting from another controller to this, and left behind.
         private readonly string _logName = "Book";
 
 
-        public BookController(ILogger<BookController> logger, BookService service)
+        public BookController(ILogger<BookController> logger, BookRepository service)
         {
             _logger = logger;
             _service = service;

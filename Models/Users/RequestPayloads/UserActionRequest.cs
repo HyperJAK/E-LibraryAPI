@@ -1,12 +1,10 @@
-﻿using ELib_IDSFintech_Internship.Models.Books.Authors;
-using ELib_IDSFintech_Internship.Models.Tools;
-using ELib_IDSFintech_Internship.Repositories.Books.Authors;
-using ELib_IDSFintech_Internship.Repositories.Users;
+﻿using ELib_IDSFintech_Internship.Models.Tools;
+using ELib_IDSFintech_Internship.Repositories.Users.RequestPayloads;
 
 namespace ELib_IDSFintech_Internship.Models.Users.RequestPayloads
 {
     [ValidateOne("EntityObject", "Id", "SessionID")]
-    public class UserActionRequest : IUserActionRequestRepository
+    public class UserActionRequest : IUserActionRequest
     {
 
         private string? _sessionID;

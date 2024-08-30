@@ -1,14 +1,7 @@
-﻿using ELib_IDSFintech_Internship.Models.Books;
-using ELib_IDSFintech_Internship.Models.Books.Authors.RequestPayloads;
-using ELib_IDSFintech_Internship.Models.Users;
-using ELib_IDSFintech_Internship.Models.Users.RequestPayloads;
-using ELib_IDSFintech_Internship.Models.Users.Sessions;
-using ELib_IDSFintech_Internship.Models.Users.Subscriptions;
+﻿using ELib_IDSFintech_Internship.Models.Users.RequestPayloads;
 using ELib_IDSFintech_Internship.Services.Enums;
-using ELib_IDSFintech_Internship.Services.Tools;
 using ELib_IDSFintech_Internship.Services.Users;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Http;
 
 namespace ELib_IDSFintech_Internship.Controllers.Users
 {
@@ -17,14 +10,14 @@ namespace ELib_IDSFintech_Internship.Controllers.Users
     public class UserController : ControllerBase
     {
 
-        private readonly UserService _service;
+        private readonly UserRepository _service;
         private readonly ILogger<UserController> _logger;
 
         //conveniently used when was copy pasting from another controller to this, and left behind.
         private readonly string _logName = "User";
 
 
-        public UserController(ILogger<UserController> logger, UserService service)
+        public UserController(ILogger<UserController> logger, UserRepository service)
         {
             _logger = logger;
             _service = service;

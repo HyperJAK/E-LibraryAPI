@@ -1,10 +1,9 @@
-﻿using ELib_IDSFintech_Internship.Repositories.Books.Authors;
-using ELib_IDSFintech_Internship.Repositories.Users;
-using ELib_IDSFintech_Internship.Services.Enums;
+﻿using ELib_IDSFintech_Internship.Repositories.Users.RequestPayloads;
+
 
 namespace ELib_IDSFintech_Internship.Models.Users.RequestPayloads
 {
-    public class UserActionResponse : IUserActionResponseRepository
+    public class UserActionResponse : IUserActionResponse
     {
         public int Status { get; set; }
         public string? Message { get; set; }

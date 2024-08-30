@@ -1,16 +1,9 @@
 
 using ELib_IDSFintech_Internship.Data;
 using ELib_IDSFintech_Internship.Services.Books;
-using ELib_IDSFintech_Internship.Services.Books.Authors;
-using ELib_IDSFintech_Internship.Services.Books.Formats;
-using ELib_IDSFintech_Internship.Services.Books.Genres;
-using ELib_IDSFintech_Internship.Services.Books.Locations;
-using ELib_IDSFintech_Internship.Services.Books.Tags;
-using ELib_IDSFintech_Internship.Services.Common;
+using ELib_IDSFintech_Internship.Services.Sessions;
 using ELib_IDSFintech_Internship.Services.Tools;
 using ELib_IDSFintech_Internship.Services.Users;
-using ELib_IDSFintech_Internship.Services.Users.CreditCards;
-using ELib_IDSFintech_Internship.Services.Users.Subscriptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace ELib_IDSFintech_Internship
@@ -43,17 +36,11 @@ namespace ELib_IDSFintech_Internship
             builder.Services.AddMemoryCache();
 
             //building services
-            builder.Services.AddScoped<BookAuthorService>();
-            builder.Services.AddScoped<BookGenreService>();
-            builder.Services.AddScoped<BookLocationService>();
-            builder.Services.AddScoped<BookService>();
-            builder.Services.AddScoped<BookTagService>();
-            builder.Services.AddScoped<CreditCardService>();
-            builder.Services.AddScoped<SubscriptionService>();
-            builder.Services.AddScoped<UserService>();
-            builder.Services.AddScoped<BookFormatService>();
-            builder.Services.AddScoped<LanguageService>();
-            builder.Services.AddScoped<SessionManagementService>();
+            builder.Services.AddScoped<BookGenreRepository>();
+            builder.Services.AddScoped<BookRepository>();
+            builder.Services.AddScoped<SubscriptionRepository>();
+            builder.Services.AddScoped<UserRepository>();
+            builder.Services.AddScoped<SessionManagementRepository>();
 
             builder.Services.AddSingleton<AES256Encryption>();
             
