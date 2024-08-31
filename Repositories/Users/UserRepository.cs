@@ -174,6 +174,8 @@ namespace ELib_IDSFintech_Internship.Services.Users
                     //we also need to clear the cache of the book because we updated its availability / quantity
                     await _bookService.ClearCache($"Book_{request.BookId}");
 
+                    await _bookService.ClearCache($"BorrowedBy_{user.Id}"); 
+
                     var user2 = await _context.Users.Where(u => u.Id == request.UserId).Include(l => l.Subscription).Include(b => b.UserBooks).ThenInclude(b => b.Book).FirstOrDefaultAsync();
                     var book2 = await _context.Books.Where(u => u.Id == request.BookId).FirstOrDefaultAsync();
 
@@ -287,6 +289,8 @@ namespace ELib_IDSFintech_Internship.Services.Users
                     await ClearCache($"User_{user.Id}");
                     //we also need to clear the cache of the book because we updated its availability / quantity
                     await _bookService.ClearCache($"Book_{request.BookId}");
+
+                    await _bookService.ClearCache($"BorrowedBy_{user.Id}"); 
 
                     var user2 = await _context.Users.Where(u => u.Id == request.UserId).Include(l => l.Subscription).Include(b => b.UserBooks).ThenInclude(b => b.Book).FirstOrDefaultAsync();
                     var book2 = await _context.Books.Where(u => u.Id == request.BookId).FirstOrDefaultAsync();
@@ -485,16 +489,15 @@ namespace ELib_IDSFintech_Internship.Services.Users
 
             try
             {
-                /*if (_memoryCache.TryGetValue(cacheKey, out User? cachedUser))
+               /* if (_memoryCache.TryGetValue(cacheKey, out User? cachedUser))
                 {
                     _logger.LogInformation($"{_logName} retrieved from cache");
                     return cachedUser;
-                }
-                else
-                {*/
+                }*/
+                
                     _logger.LogInformation($"{_logName}s not found in cache");
 
-                     var cachedUser = await _context.Users.Where(l => l.Id == id)
+                     var user = await _context.Users.Where(l => l.Id == id)
                         .Include(u => u.Subscription)
                         .Include(u => u.CreditCard)
                         .Include(u => u.UserBooks)
@@ -516,19 +519,24 @@ namespace ELib_IDSFintech_Internship.Services.Users
                         .ThenInclude(b => b.Book)
                         .ThenInclude(b => b.Tags).FirstOrDefaultAsync();
 
-
-                    /*//Setting behavior of the cached items after a certain passed time
+                if (user != null)
+                {
+                    //Setting behavior of the cached items after a certain passed time
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
                         .SetSlidingExpiration(TimeSpan.FromSeconds(30))
                     .SetAbsoluteExpiration(TimeSpan.FromMinutes(5))
                     .SetPriority(CacheItemPriority.Low);
 
-                    _memoryCache.Set(cacheKey, cachedUser, cacheEntryOptions);*/
+                    _memoryCache.Set(cacheKey, user, cacheEntryOptions);
+                }
 
-                    return cachedUser;
-                /*}*/
- 
-            }
+                    return user;
+                }
+
+               
+
+
+
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Failed to get the {_logName} with supposed ID: {id}, in Services Layer");
@@ -651,7 +659,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
             }
         }
 
-        public Task<bool?> ClearCache(string key)
+        public async Task<bool?> ClearCache(string key)
         {
             _logger.LogInformation($"Clearing all cached {_logName}s, Service Layer");
 
@@ -661,7 +669,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
 
                 _logger.LogInformation($"Cleared all cached {_logName}s");
 
-                var resp = Task.FromResult<bool?>(true);
+                var resp = true;
 
                 return resp;
             }

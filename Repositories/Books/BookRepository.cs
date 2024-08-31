@@ -160,11 +160,11 @@ namespace ELib_IDSFintech_Internship.Services.Books
 
             try
             {
-                if (_memoryCache.TryGetValue(cacheKey, out Book? cachedBook))
+                /*if (_memoryCache.TryGetValue(cacheKey, out Book? cachedBook))
                 {
                     _logger.LogInformation($"{_logName} retrieved from cache");
                     return cachedBook;
-                }
+                }*/
 
                 _logger.LogInformation($"{_logName} not found in cache");
 
@@ -237,7 +237,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
             }
         }
 
-        public Task<bool?> ClearCache(string key)
+        public async Task<bool?> ClearCache(string key)
         {
             _logger.LogInformation($"Clearing all cached {_logName}s, Service Layer");
 
@@ -247,7 +247,7 @@ namespace ELib_IDSFintech_Internship.Services.Books
 
                 _logger.LogInformation($"Cleared all cached {_logName}s, specifically: {key}");
 
-                return Task.FromResult<bool?>(true);
+                return true;
             }
             catch (Exception ex)
             {
