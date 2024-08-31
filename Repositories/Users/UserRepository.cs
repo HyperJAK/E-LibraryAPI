@@ -91,7 +91,7 @@ namespace ELib_IDSFintech_Internship.Services.Users
 
                     return response;
                 }
-                if (user.Subscription == null)
+                if (user.Subscription == null || user.Subscription.Type == "None")
                 {
                     _logger.LogInformation($"No {_logName} subscription found");
                     response.Status = (int)ResponseType.SubscriptionNeeded;
